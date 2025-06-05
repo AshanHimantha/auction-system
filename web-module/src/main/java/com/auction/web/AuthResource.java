@@ -1,10 +1,10 @@
 package com.auction.web;
 
 import com.auction.ejb.Authentication;
-import jakarta.ejb.EJB; // UPDATED
-import jakarta.json.Json; // UPDATED
-import jakarta.json.JsonObject; // UPDATED
-import jakarta.ws.rs.*; // UPDATED
+import jakarta.ejb.EJB;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
 import java.util.logging.Level;
@@ -69,5 +69,29 @@ public class AuthResource {
     public Response whoami(@Context SecurityContext securityContext) {
         String username = securityContext.getUserPrincipal().getName();
         return Response.ok(Json.createObjectBuilder().add("username", username).build()).build();
+    }
+
+    // --- NEW ENDPOINT FOR USER REGISTRATION ---
+    @POST
+    @Path("/register")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response register(JsonObject registrationData) {
+        String username = registrationData.getString("username");
+        String password = registrationData.getString("password");
+
+        LOGGER.log(Level.INFO, "Registration attempt for user: {0}", username);
+
+        if (authenticationBean.registerUser(username, password)) {
+            LOGGER.log(Level.INFO, "User registered successfully: {0}", username);
+            return Response.status(Response.Status.CREATED)
+                    .entity(Json.createObjectBuilder().add("message", "Registration successful. You can now log in.").build())
+                    .build();
+        } else {
+            LOGGER.log(Level.WARNING, "Registration failed for user: {0} (possibly username already exists or invalid data).", username);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Json.createObjectBuilder().add("message", "Registration failed. Username might already exist or invalid data provided.").build())
+                    .build();
+        }
     }
 }

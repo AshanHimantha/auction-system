@@ -31,4 +31,9 @@ public class AuthenticationBean implements Authentication {
     public void logout(String token) {
         authService.invalidateToken(token);
     }
+
+    @Override // NEW METHOD IMPLEMENTATION
+    public boolean registerUser(String username, String password) {
+        return authService.registerUser(username, password);
+    }
 }

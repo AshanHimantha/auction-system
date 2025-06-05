@@ -69,17 +69,18 @@ public class BidProcessorMDB implements MessageListener {
                     return;
                 }
 
+                // Update auction in in-memory storage (this is where winningBidder is set on the object)
                 auctionToUpdate.setCurrentBid(bidAmount);
-                auctionToUpdate.setWinningBidder(bidderName);
-
-                auctionStorage.addOrUpdateAuction(auctionToUpdate);
+                auctionToUpdate.setWinningBidder(bidderName); // <-- THIS LINE SETS THE BIDDER ON THE OBJECT
+                auctionStorage.addOrUpdateAuction(auctionToUpdate); // This commits the change to the map
 
                 System.out.println("MDB: Successfully updated auction " + auctionId + " with new bid " + bidAmount + " by " + bidderName);
 
+                // Publish update to WebSocket clients via JMS Topic
                 MapMessage updateMessage = jmsContext.createMapMessage();
                 updateMessage.setLong("auctionId", auctionId);
-                updateMessage.setDouble("currentBid", bidAmount);
-                updateMessage.setString("winningBidder", bidderName);
+                updateMessage.setDouble("currentBid", auctionToUpdate.getCurrentBid()); // Use the updated value
+                updateMessage.setString("winningBidder", auctionToUpdate.getWinningBidder()); // <-- CRITICAL: Use the bidder from the UPDATED object
                 updateMessage.setString("title", auctionToUpdate.getTitle());
                 jmsContext.createProducer().send(auctionUpdatesTopic, updateMessage);
                 System.out.println("MDB: Sent auction update to topic for auction " + auctionId);

@@ -85,4 +85,21 @@ public class AuthenticationServiceSingleton {
             LOGGER.log(Level.WARNING, "Attempted to invalidate non-existent token: " + token);
         }
     }
+
+    // --- NEW METHOD FOR REGISTRATION ---
+    @Lock(LockType.WRITE) // Ensure exclusive write access for user registration
+    public boolean registerUser(String username, String password) {
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            LOGGER.log(Level.WARNING, "Attempted to register user with empty username or password.");
+            return false;
+        }
+        if (users.containsKey(username)) {
+            LOGGER.log(Level.WARNING, "Registration failed: Username already exists: " + username);
+            return false; // User already exists
+        }
+        // In a real application, 'password' should be hashed (e.g., using BCrypt)
+        users.put(username, new User(username, password));
+        LOGGER.log(Level.INFO, "New user registered: " + username);
+        return true;
+    }
 }

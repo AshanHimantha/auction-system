@@ -8,4 +8,5 @@ public interface Authentication {
     boolean validateToken(String token);
     String getUsernameFromToken(String token);
     void logout(String token);
+    boolean registerUser(String username, String password); // NEW METHOD
 }

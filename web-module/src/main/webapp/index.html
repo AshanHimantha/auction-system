@@ -39,26 +39,29 @@
         <button id="logout-btn" class="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-sm">Logout</button>
     </div>
 
-    <!-- Login Form -->
-    <div id="login-section" class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-md mx-auto">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Login to Bid</h2>
-        <form id="login-form">
+    <!-- Login/Registration Section -->
+    <div id="auth-section" class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-md mx-auto">
+        <h2 id="auth-title" class="text-2xl font-semibold text-gray-700 mb-4">Login to Bid</h2>
+        <form id="auth-form">
             <div class="mb-4">
-                <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
-                <input type="text" id="username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <label for="auth-username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                <input type="text" id="auth-username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
             </div>
             <div class="mb-6">
-                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
-                <input type="password" id="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" required>
+                <label for="auth-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                <input type="password" id="auth-password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" required>
             </div>
             <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <button type="submit" id="auth-submit-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Login
                 </button>
+                <button type="button" id="toggle-auth-mode-btn" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+                    Register Instead
+                </button>
             </div>
-            <p class="text-sm text-gray-600 mt-4">Demo Users: user1/pass1, user2/pass2</p>
+            <p class="text-sm text-gray-600 mt-4" id="auth-hint">Demo Users: user1/pass1, user2/pass2</p>
         </form>
-        <p id="login-message" class="text-red-500 text-xs italic mt-4"></p>
+        <p id="auth-message" class="text-red-500 text-xs italic mt-4"></p>
     </div>
 
     <!-- Auction List (hidden until authenticated) -->
@@ -94,9 +97,16 @@
 </div>
 
 <script>
-    const loginSection = document.getElementById('login-section');
-    const loginForm = document.getElementById('login-form');
-    const loginMessage = document.getElementById('login-message');
+    const authSection = document.getElementById('auth-section');
+    const authTitle = document.getElementById('auth-title');
+    const authForm = document.getElementById('auth-form');
+    const authUsernameInput = document.getElementById('auth-username');
+    const authPasswordInput = document.getElementById('auth-password');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const toggleAuthModeBtn = document.getElementById('toggle-auth-mode-btn');
+    const authMessage = document.getElementById('auth-message');
+    const authHint = document.getElementById('auth-hint');
+
     const userInfoDiv = document.getElementById('user-info');
     const currentUsernameSpan = document.getElementById('current-username');
     const logoutBtn = document.getElementById('logout-btn');
@@ -106,35 +116,64 @@
 
     let websocket;
     const CONTEXT_ROOT = '/auction-system';
+    let isLoginMode = true; // State for login vs registration
 
     // --- Authentication Functions ---
-    async function handleLogin(event) {
+    async function handleAuthSubmit(event) {
         event.preventDefault();
-        const username = loginForm.username.value;
-        const password = loginForm.password.value;
+        const username = authUsernameInput.value;
+        const password = authPasswordInput.value;
+        let url, method;
+
+        if (isLoginMode) {
+            url = `${CONTEXT_ROOT}/api/auth/login`;
+            method = 'Login';
+        } else {
+            url = `${CONTEXT_ROOT}/api/auth/register`;
+            method = 'Register';
+        }
 
         try {
-            const response = await fetch(`${CONTEXT_ROOT}/api/auth/login`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
             const data = await response.json();
 
-            if (response.ok) {
-                localStorage.setItem('authToken', data.token);
-                localStorage.setItem('currentUsername', data.username);
-                loginMessage.textContent = '';
-                updateUIForLogin(data.username);
-                fetchAuctions();
-                connectWebSocket();
+            if (response.ok || response.status === 201) { // 201 Created for registration
+                authMessage.textContent = data.message || `${method} successful.`;
+                authMessage.className = 'text-green-600 text-xs italic mt-4';
+                if (isLoginMode) { // Only attempt UI update on successful login
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('currentUsername', data.username);
+                    updateUIForLogin(data.username);
+                    fetchAuctions();
+                    connectWebSocket(); // This will connect, but updates won't flow from MDB if commented out
+                } else { // After successful registration, switch to login mode
+                    switchAuthMode(true);
+                    authUsernameInput.value = username; // Keep username
+                    authPasswordInput.value = ''; // Clear password
+                }
             } else {
-                loginMessage.textContent = data.message || 'Login failed.';
+                authMessage.textContent = data.message || `${method} failed.`;
+                authMessage.className = 'text-red-500 text-xs italic mt-4';
             }
         } catch (error) {
-            loginMessage.textContent = 'Network error during login.';
-            console.error('Login error:', error);
+            authMessage.textContent = `Network error during ${method.toLowerCase()}.`;
+            authMessage.className = 'text-red-700 text-xs italic mt-4';
+            console.error(`${method} error:`, error);
         }
+    }
+
+    function switchAuthMode(toLogin) {
+        isLoginMode = toLogin;
+        authTitle.textContent = isLoginMode ? 'Login to Bid' : 'Register New User';
+        authSubmitBtn.textContent = isLoginMode ? 'Login' : 'Register';
+        toggleAuthModeBtn.textContent = isLoginMode ? 'Register Instead' : 'Login Instead';
+        authHint.textContent = isLoginMode ? 'Demo Users: user1/pass1, user2/pass2' : 'Choose a unique username and strong password.';
+        authMessage.textContent = ''; // Clear messages
+        authForm.reset(); // Clear form fields
     }
 
     async function handleLogout() {
@@ -166,17 +205,17 @@
     }
 
     function updateUIForLogin(username) {
-        loginSection.classList.add('hidden');
+        authSection.classList.add('hidden');
         auctionListSection.classList.remove('hidden');
         userInfoDiv.classList.remove('hidden');
         currentUsernameSpan.textContent = username;
     }
 
     function updateUIForLogout() {
-        loginSection.classList.remove('hidden');
+        authSection.classList.remove('hidden');
         auctionListSection.classList.add('hidden');
         userInfoDiv.classList.add('hidden');
-        auctionListDiv.innerHTML = '<p class="col-span-full text-center text-gray-500">Please login to view auctions.</p>';
+        auctionListDiv.innerHTML = '<p class="col-span-full text-center text-gray-500">Please login or register to view auctions.</p>'; // Updated message
     }
 
     // --- WebSocket Functions ---
@@ -222,8 +261,8 @@
     async function fetchAuctions() {
         const token = localStorage.getItem('authToken');
         if (!token) {
-            logMessage('Not authenticated. Please login to fetch auctions.', 'text-orange-500');
-            auctionListDiv.innerHTML = '<p class="col-span-full text-center text-gray-500">Please login to view auctions.</p>';
+            logMessage('Not authenticated. Please login or register to fetch auctions.', 'text-orange-500'); // Updated message
+            auctionListDiv.innerHTML = '<p class="col-span-full text-center text-gray-500">Please login or register to view auctions.</p>';
             return;
         }
 
@@ -350,7 +389,8 @@
 
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
-        loginForm.addEventListener('submit', handleLogin);
+        authForm.addEventListener('submit', handleAuthSubmit);
+        toggleAuthModeBtn.addEventListener('click', () => switchAuthMode(!isLoginMode));
         logoutBtn.addEventListener('click', handleLogout);
 
         const storedToken = localStorage.getItem('authToken');
@@ -379,7 +419,8 @@
                 });
         } else {
             updateUIForLogout();
-            logMessage('Please log in to participate in auctions.', 'text-orange-500');
+            switchAuthMode(true); // Default to login mode
+            logMessage('Please log in or register to participate in auctions.', 'text-orange-500');
         }
     });
 </script>
