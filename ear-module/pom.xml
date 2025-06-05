@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.ashanhimantha.ee</groupId>
+        <artifactId>auction-system</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ear-module</artifactId>
+    <packaging>ear</packaging>
+
+    <name>Auction System EAR Module</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.ashanhimantha.ee</groupId>
+            <artifactId>ejb-module</artifactId>
+            <version>${project.parent.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>com.ashanhimantha.ee</groupId>
+            <artifactId>web-module</artifactId>
+            <version>${project.parent.version}</version>
+            <type>war</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>3.3.0</version> <!-- CHANGE THIS LINE: from 3.2.0 to 3.3.1 -->
+                <configuration>
+                    <version>10</version> <!-- This '10' is now valid for plugin version 3.3.1 -->
+                    <defaultLibBundleDir>lib</defaultLibBundleDir>
+                    <modules>
+                        <ejbModule>
+                            <groupId>com.ashanhimantha.ee</groupId>
+                            <artifactId>ejb-module</artifactId>
+                            <bundleFileName>ejb-module.jar</bundleFileName>
+                        </ejbModule>
+                        <webModule>
+                            <groupId>com.ashanhimantha.ee</groupId>
+                            <artifactId>web-module</artifactId>
+                            <bundleFileName>web-module.war</bundleFileName>
+                            <contextRoot>/auction-system</contextRoot>
+                        </webModule>
+                    </modules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
