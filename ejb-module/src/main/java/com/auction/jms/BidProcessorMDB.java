@@ -16,6 +16,9 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.ejb.EJB;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "jms/BidQueue"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Queue"),
@@ -23,6 +26,8 @@ import jakarta.ejb.EJB;
 })
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class BidProcessorMDB implements MessageListener {
+
+    private static final Logger LOGGER = Logger.getLogger(BidProcessorMDB.class.getName());
 
     @EJB
     private AuctionInMemoryStorageSingleton auctionStorage;
@@ -40,9 +45,9 @@ public class BidProcessorMDB implements MessageListener {
                 MapMessage mapMessage = (MapMessage) message;
                 Long auctionId = mapMessage.getLong("auctionId");
                 double bidAmount = mapMessage.getDouble("bidAmount");
-                String bidderName = mapMessage.getString("bidderName");
+                String bidderName = mapMessage.getString("bidderName"); // This is the bidder name from the *incoming* message
 
-                System.out.println("MDB processing bid for auction " + auctionId + " by " + bidderName + " amount " + bidAmount);
+                LOGGER.log(Level.INFO, "DEBUG (BidProcessorMDB): Bidder Name extracted from incoming JMS message: " + bidderName);
 
                 Auction currentAuction = auctionStorage.getAuction(auctionId);
                 if (currentAuction == null) {
@@ -50,12 +55,18 @@ public class BidProcessorMDB implements MessageListener {
                     return;
                 }
 
+                // Create a mutable copy to update
                 Auction auctionToUpdate = new Auction();
                 auctionToUpdate.setId(currentAuction.getId());
                 auctionToUpdate.setTitle(currentAuction.getTitle());
+                auctionToUpdate.setDescription(currentAuction.getDescription());
+                auctionToUpdate.setImageUrls(currentAuction.getImageUrls());
+                auctionToUpdate.setStartPrice(currentAuction.getStartPrice());
                 auctionToUpdate.setCurrentBid(currentAuction.getCurrentBid());
-                auctionToUpdate.setWinningBidder(currentAuction.getWinningBidder());
+                auctionToUpdate.setWinningBidder(currentAuction.getWinningBidder()); // Copy existing bidder first
                 auctionToUpdate.setMinIncrement(currentAuction.getMinIncrement());
+                auctionToUpdate.setStartTime(currentAuction.getStartTime());
+                auctionToUpdate.setEndTime(currentAuction.getEndTime());
                 auctionToUpdate.setStatus(currentAuction.getStatus());
                 auctionToUpdate.setVersion(currentAuction.getVersion());
 
@@ -71,33 +82,38 @@ public class BidProcessorMDB implements MessageListener {
 
                 // Update auction in in-memory storage (this is where winningBidder is set on the object)
                 auctionToUpdate.setCurrentBid(bidAmount);
-                auctionToUpdate.setWinningBidder(bidderName); // <-- THIS LINE SETS THE BIDDER ON THE OBJECT
+                auctionToUpdate.setWinningBidder(bidderName); // The bidderName is set on the object here
                 auctionStorage.addOrUpdateAuction(auctionToUpdate); // This commits the change to the map
 
-                System.out.println("MDB: Successfully updated auction " + auctionId + " with new bid " + bidAmount + " by " + bidderName);
+                LOGGER.log(Level.INFO, "MDB: Successfully updated auction " + auctionId + " with new bid " + bidAmount + " by " + bidderName);
 
                 // Publish update to WebSocket clients via JMS Topic
                 MapMessage updateMessage = jmsContext.createMapMessage();
                 updateMessage.setLong("auctionId", auctionId);
-                updateMessage.setDouble("currentBid", auctionToUpdate.getCurrentBid()); // Use the updated value
-                updateMessage.setString("winningBidder", auctionToUpdate.getWinningBidder()); // <-- CRITICAL: Use the bidder from the UPDATED object
+                updateMessage.setDouble("currentBid", auctionToUpdate.getCurrentBid());
+
+                // **** CRITICAL CHANGE HERE: Use the original 'bidderName' directly, ensuring it's non-null ****
+                String finalBidderForTopic = (bidderName != null && !bidderName.isEmpty()) ? bidderName : "None";
+                updateMessage.setString("winningBidder", finalBidderForTopic); // Use the direct, non-null string
+
                 updateMessage.setString("title", auctionToUpdate.getTitle());
+
                 jmsContext.createProducer().send(auctionUpdatesTopic, updateMessage);
-                System.out.println("MDB: Sent auction update to topic for auction " + auctionId);
+                LOGGER.log(Level.INFO, "MDB: Sent auction update to topic for auction " + auctionId + " with bidder: " + finalBidderForTopic); // Log the sent value
 
             } catch (RuntimeException e) {
-                System.err.println("MDB: Error processing bid message (runtime exception): " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "MDB: Error processing bid message (runtime exception): " + e.getMessage(), e);
                 throw new jakarta.ejb.EJBException("Error during bid processing", e);
             } catch (JMSException e) {
-                System.err.println("MDB: JMS error during message processing: " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "MDB: JMS error during message processing: " + e.getMessage(), e);
                 throw new jakarta.ejb.EJBException("JMS Exception", e);
             } catch (Exception e) {
-                System.err.println("MDB: Unexpected error during bid processing: " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "MDB: Unexpected error during bid processing: " + e.getMessage(), e);
                 e.printStackTrace();
                 throw new jakarta.ejb.EJBException("Unexpected error", e);
             }
         } else {
-            System.err.println("MDB: Received non-MapMessage: " + message.getClass().getName());
+            LOGGER.log(Level.WARNING, "MDB: Received non-MapMessage: " + message.getClass().getName());
         }
     }
 }

@@ -28,6 +28,8 @@ public class BidManagerBean implements BidManager {
             message.setDouble("bidAmount", bidAmount);
             message.setString("bidderName", bidderName);
 
+
+
             jmsContext.createProducer().send(bidQueue, message);
             System.out.println("Bid for auction " + auctionId + " by " + bidderName + " submitted to JMS queue.");
             return "Bid received for processing.";

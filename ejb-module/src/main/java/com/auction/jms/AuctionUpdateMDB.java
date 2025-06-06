@@ -34,15 +34,20 @@ public class AuctionUpdateMDB implements MessageListener {
         }
     }
 
-    private String buildJsonUpdate(MapMessage mapMessage) throws JMSException {
-        Long auctionId = mapMessage.getLong("auctionId");
-        double currentBid = mapMessage.getDouble("currentBid");
-        String winningBidder = mapMessage.getString("bidderName");
-        String title = mapMessage.getString("title");
+  private String buildJsonUpdate(MapMessage mapMessage) throws JMSException {
+      Long auctionId = mapMessage.getLong("auctionId");
+      double currentBid = mapMessage.getDouble("currentBid");
+      String winningBidder = mapMessage.getString("winningBidder");
+      String title = mapMessage.getString("title");
 
-        return String.format(
-                "{\"auctionId\": %d, \"currentBid\": %.2f, \"winningBidder\": \"%s\", \"title\": \"%s\"}",
-                auctionId, currentBid, winningBidder, title
-        );
-    }
+      // Ensure winning bidder is never null in the JSON
+      if (winningBidder == null || winningBidder.isEmpty()) {
+          winningBidder = "None";
+      }
+
+      return String.format(
+              "{\"auctionId\": %d, \"currentBid\": %.2f, \"winningBidder\": \"%s\", \"title\": \"%s\"}",
+              auctionId, currentBid, winningBidder, title
+      );
+  }
 }
