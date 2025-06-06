@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Auction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .log-container { max-height: 150px; overflow-y: auto; font-size: 0.875rem; }
+        .log-container::-webkit-scrollbar { width: 8px; }
+        .log-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .log-container::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        .log-container::-webkit-scrollbar-thumb:hover { background: #555; }
+        .image-preview { max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+
+<div class="container mx-auto p-4 max-w-2xl">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800">Create New Auction</h1>
+        <div id="user-controls" class="flex items-center space-x-4">
+            <a href="auctions.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">Back to Auctions</a>
+            <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300">Logout</button>
+        </div>
+    </div>
+
+    <!-- Admin: Create New Auction Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <p class="text-gray-600 mb-4">You must be an administrator to create auctions.</p>
+        <form id="create-auction-form">
+            <div class="mb-4">
+                <label for="auction-title" class="block text-gray-700 text-sm font-bold mb-2">Title:</label>
+                <input type="text" id="auction-title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+            </div>
+            <div class="mb-4">
+                <label for="auction-description" class="block text-gray-700 text-sm font-bold mb-2">Description:</label>
+                <textarea id="auction-description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="auction-image-urls" class="block text-gray-700 text-sm font-bold mb-2">Image URLs (comma-separated, max 3):</label>
+                <input type="text" id="auction-image-urls" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., url1, url2">
+                <div id="image-previews" class="flex flex-wrap gap-2 mt-2"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="auction-start-price" class="block text-gray-700 text-sm font-bold mb-2">Starting Price ($):</label>
+                    <input type="number" step="0.01" min="0.01" id="auction-start-price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label for="auction-min-increment" class="block text-gray-700 text-sm font-bold mb-2">Min Increment ($):</label>
+                    <input type="number" step="0.01" min="0.01" id="auction-min-increment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label for="auction-start-time" class="block text-gray-700 text-sm font-bold mb-2">Start Date & Time:</label>
+                    <input type="datetime-local" id="auction-start-time" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div>
+                    <label for="auction-end-time" class="block text-gray-700 text-sm font-bold mb-2">End Date & Time:</label>
+                    <input type="datetime-local" id="auction-end-time" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Create Auction
+                </button>
+            </div>
+            <p id="create-auction-message" class="text-red-500 text-xs italic mt-4"></p>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Application Log</h2>
+        <div id="app-log" class="bg-gray-50 p-4 rounded-md border border-gray-200 log-container text-sm text-gray-700">
+            <p class="text-gray-500 italic">Messages will appear here.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const logoutBtn = document.getElementById('logout-btn');
+    const createAuctionForm = document.getElementById('create-auction-form');
+    const createAuctionMessage = document.getElementById('create-auction-message');
+    const auctionImageUrlsInput = document.getElementById('auction-image-urls');
+    const imagePreviewsDiv = document.getElementById('image-previews');
+    const appLog = document.getElementById('app-log');
+
+    const CONTEXT_ROOT = '/auction-system';
+
+    // --- Utility Functions ---
+    function getAuthToken() { return localStorage.getItem('authToken'); }
+    function getCurrentUsername() { return localStorage.getItem('currentUsername'); }
+    function getCurrentUserRole() { return localStorage.getItem('currentUserRole'); }
+
+    function logMessage(message, className = '') {
+        const p = document.createElement('p');
+        p.className = `mb-1 ${className}`;
+        p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        appLog.appendChild(p);
+        appLog.scrollTop = appLog.scrollHeight;
+    }
+
+    // --- Authentication/Authorization Check on Page Load ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = getAuthToken();
+        const username = getCurrentUsername();
+        const role = getCurrentUserRole();
+
+        // Redirect if not logged in or not ADMIN
+        if (!token || !username || !role) {
+            logMessage('Not logged in. Redirecting to login page.', 'text-red-500');
+            window.location.href = `${CONTEXT_ROOT}/index.html`;
+            return;
+        }
+        if (role !== 'ADMIN') {
+            logMessage('You must be an ADMIN to create auctions. Redirecting to auctions list.', 'text-red-500');
+            window.location.href = `${CONTEXT_ROOT}/auctions.html`;
+            return;
+        }
+
+        // If authenticated as ADMIN, display user info
+        document.getElementById('current-username').textContent = username;
+        document.getElementById('current-user-role').textContent = role;
+        logMessage(`Logged in as ${username} (${role}). Ready to create auctions.`, 'text-green-600');
+
+
+        // Set min datetime for start and end times to now
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const currentDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        document.getElementById('auction-start-time').min = currentDateTime;
+        document.getElementById('auction-end-time').min = currentDateTime;
+    });
+
+    // --- Logout Handler ---
+    logoutBtn.addEventListener('click', async () => {
+        const token = getAuthToken();
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${CONTEXT_ROOT}/api/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                logMessage('Logged out successfully.', 'text-green-600');
+            } else {
+                logMessage('Logout failed. Token might be invalid or expired on server.', 'text-red-500');
+            }
+        } catch (error) {
+            logMessage('Network error during logout.', 'text-red-700');
+            console.error('Logout error:', error);
+        } finally {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUsername');
+            localStorage.removeItem('currentUserRole');
+            window.location.href = `${CONTEXT_ROOT}/index.html`;
+        }
+    });
+
+    // --- New Auction Creation Functions ---
+    auctionImageUrlsInput.addEventListener('input', (event) => {
+        const urls = event.target.value.split(',').map(url => url.trim()).filter(url => url.length > 0).slice(0, 3);
+        imagePreviewsDiv.innerHTML = '';
+        urls.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'image-preview';
+            img.alt = 'Image preview';
+            imagePreviewsDiv.appendChild(img);
+        });
+    });
+
+    createAuctionForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const token = getAuthToken();
+        const role = getCurrentUserRole();
+
+        if (!token || role !== 'ADMIN') { // Double-check authorization
+            logMessage('Unauthorized to create auction. Please log in as Admin.', 'text-red-500');
+            return;
+        }
+
+        const title = document.getElementById('auction-title').value;
+        const description = document.getElementById('auction-description').value;
+        const imageUrls = document.getElementById('auction-image-urls').value.split(',').map(url => url.trim()).filter(url => url.length > 0).slice(0, 3);
+        const startPrice = parseFloat(document.getElementById('auction-start-price').value);
+        const minIncrement = parseFloat(document.getElementById('auction-min-increment').value);
+        const startTime = document.getElementById('auction-start-time').value;
+        const endTime = document.getElementById('auction-end-time').value;
+
+        if (isNaN(startPrice) || isNaN(minIncrement) || !title || !description || !startTime || !endTime) {
+            createAuctionMessage.textContent = 'Please fill all required fields correctly.';
+            createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${CONTEXT_ROOT}/api/auctions/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title,
+                    description,
+                    imageUrls,
+                    startPrice,
+                    minIncrement,
+                    startTime,
+                    endTime
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok || response.status === 201) {
+                createAuctionMessage.textContent = `Auction created successfully! ID: ${data.id}`;
+                createAuctionMessage.className = 'text-green-600 text-xs italic mt-4';
+                createAuctionForm.reset();
+                imagePreviewsDiv.innerHTML = '';
+                logMessage(`New auction created: ID ${data.id}, Title: "${data.title}"`, 'text-blue-600');
+                // Optionally redirect back to auctions.html or keep on this page
+            } else if (response.status === 401 || response.status === 403) {
+                createAuctionMessage.textContent = `Authorization failed: ${data.message}. Please re-login with admin role.`;
+                createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';
+                logMessage('Auth failed during auction creation. Redirecting to login.', 'text-red-500');
+                handleLogout();
+            } else {
+                createAuctionMessage.textContent = `Error creating auction: ${data.message || 'Unknown error'}`;
+                createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';
+                logMessage(`Error creating auction: ${data.message || 'Unknown error'}`, 'text-red-700');
+            }
+        } catch (error) {
+            createAuctionMessage.textContent = `Network error during auction creation: ${error.message}`;
+            createAuctionMessage.className = 'text-red-700 text-xs italic mt-4';
+            logMessage(`Network error during auction creation: ${error.message}`, 'text-red-700');
+            console.error('Create auction error:', error);
+        }
+    });
+</script>
+</body>
+</html>

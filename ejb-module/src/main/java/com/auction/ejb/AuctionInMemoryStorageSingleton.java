@@ -28,16 +28,16 @@ public class AuctionInMemoryStorageSingleton {
         auctions = new ConcurrentHashMap<>();
 
         // MODIFIED: Create auctions with new fields
-        Auction a1 = new Auction("Vintage Watch", "A classic timepiece from the 1950s.", new String[]{"https://via.placeholder.com/150/0000FF/FFFFFF?text=Watch1", "https://via.placeholder.com/150/0000AA/FFFFFF?text=Watch2"}, 100.00, 5.00, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(5));
-        a1.setWinningBidder("system_user");
+        Auction a1 = new Auction("Vintage Watch", "A classic timepiece from the 1950s.", new String[]{"https://th.bing.com/th/id/OIP.YyVBrBigKQMSbIQUZBaMSgHaJQ?rs=1&pid=ImgDetMain", "https://th.bing.com/th/id/OIP.v4U30tNNeO39lKkQeKGUqAHaJQ?pid=ImgDet&w=474&h=592&rs=1"}, 100.00, 5.00, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(5));
+        a1.setWinningBidder("NoBidder"); // No bids yet
         auctions.put(a1.getId(), a1);
 
-        Auction a2 = new Auction("Rare Comic Book", "First edition of a highly sought-after superhero comic.", new String[]{"https://via.placeholder.com/150/FF0000/000000?text=Comic1"}, 50.00, 2.00, LocalDateTime.now().minusHours(12), LocalDateTime.now().plusDays(2));
-        a2.setWinningBidder("system_user");
+        Auction a2 = new Auction("Rare Comic Book", "First edition of a highly sought-after superhero comic.", new String[]{"https://images-geeknative-com.exactdn.com/wp-content/uploads/2020/02/18002335/Comics-Incredible-Hulk-181.jpg?strip=all&lossy=1&w=1920&ssl=1","https://images-geeknative-com.exactdn.com/wp-content/uploads/2020/02/18002335/Comics-Incredible-Hulk-181.jpg?strip=all&lossy=1&w=1920&ssl=1"}, 50.00, 2.00, LocalDateTime.now().minusHours(12), LocalDateTime.now().plusDays(2));
+        a2.setWinningBidder("NoBidder");
         auctions.put(a2.getId(), a2);
 
-        Auction a3 = new Auction("Old Painting", "Abstract art by a renowned local artist.", new String[]{"https://via.placeholder.com/150/00FF00/000000?text=Painting1", "https://via.placeholder.com/150/00AA00/000000?text=Painting2", "https://via.placeholder.com/150/005500/000000?text=Painting3"}, 200.00, 10.00, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(7)); // Auction starts in future
-        a3.setWinningBidder("system_user");
+        Auction a3 = new Auction("Old Painting", "Abstract art by a renowned local artist.", new String[]{"https://th.bing.com/th/id/R.ad76f044acd53da43c459dc1af958f9c?rik=4UoSDv9wFjaJ3A&pid=ImgRaw&r=0", "https://cdn.pixabay.com/photo/2016/08/07/09/17/old-1575887_960_720.jpg", "https://th.bing.com/th/id/OIP.DA9XmE8NmZhTFpItnTT1XgHaKU?w=646&h=900&rs=1&pid=ImgDetMain"}, 200.00, 10.00, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(7)); // Auction starts in future
+        a3.setWinningBidder("NoBidder");
         auctions.put(a3.getId(), a3);
 
         auctions.keySet().forEach(id -> {
