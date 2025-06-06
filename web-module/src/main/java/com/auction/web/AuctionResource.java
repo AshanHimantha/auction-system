@@ -3,15 +3,16 @@ package com.auction.web;
 import com.auction.ejb.AuctionManager;
 import com.auction.ejb.BidManager;
 import com.auction.entity.Auction;
-import jakarta.ejb.EJB; // UPDATED
-import jakarta.json.Json; // UPDATED
-import jakarta.json.JsonObject; // UPDATED
-import jakarta.ws.rs.*; // UPDATED
-import jakarta.ws.rs.core.Context; // UPDATED
-import jakarta.ws.rs.core.MediaType; // UPDATED
-import jakarta.ws.rs.core.Response; // UPDATED
-import jakarta.ws.rs.core.SecurityContext; // UPDATED
+import jakarta.ejb.EJB;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
+import java.time.LocalDateTime; // NEW IMPORT
 import java.util.Collection;
 
 @Path("/auctions")
@@ -46,7 +47,8 @@ public class AuctionResource {
 
     @POST
     @Path("/{id}/bid")
-    @Authenticated // Only authenticated users can bid
+    @Authenticated // Requires authentication
+    @RolesAllowed({"ADMIN", "USER"}) // Both admin and regular users can bid
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
     public Response placeBid(
@@ -55,25 +57,36 @@ public class AuctionResource {
             @Context SecurityContext securityContext) {
 
         String bidderName = securityContext.getUserPrincipal().getName();
+        System.out.println("DEBUG (AuthResource): Bidder Name from SecurityContext: " + bidderName); // Keep debug if needed
         System.out.println("Received bid: Auction ID " + auctionId + ", Amount " + bidAmount + ", Bidder " + bidderName);
         String result = bidManager.submitBid(auctionId, bidAmount, bidderName);
 
         return Response.accepted(result).build();
     }
 
+    // NEW ENDPOINT: Create New Auction (Admin Only)
     @POST
-    @Authenticated
+    @Authenticated // Requires authentication
+    @RolesAllowed("ADMIN") // Only ADMIN role can create auctions
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/create") // Adding a sub-path for clarity
     public Response createNewAuction(JsonObject auctionData) {
         try {
             String title = auctionData.getString("title");
-            double startingBid = auctionData.getJsonNumber("startingBid").doubleValue();
+            String description = auctionData.getString("description");
+            String[] imageUrls = auctionData.getJsonArray("imageUrls").stream()
+                    .map(v -> v.toString().replaceAll("\"", "")) // Clean up quotes
+                    .toArray(String[]::new);
+            double startPrice = auctionData.getJsonNumber("startPrice").doubleValue();
             double minIncrement = auctionData.getJsonNumber("minIncrement").doubleValue();
+            LocalDateTime startTime = LocalDateTime.parse(auctionData.getString("startTime")); // Assuming ISO-8601 string
+            LocalDateTime endTime = LocalDateTime.parse(auctionData.getString("endTime")); // Assuming ISO-8601 string
 
-            Auction newAuction = auctionManager.createAuction(title, startingBid, minIncrement);
+            Auction newAuction = auctionManager.createAuction(title, description, imageUrls, startPrice, minIncrement, startTime, endTime);
             return Response.status(Response.Status.CREATED).entity(newAuction).build();
         } catch (Exception e) {
+            e.printStackTrace(); // Log the full stack trace for debugging
             return Response.status(Response.Status.BAD_REQUEST).entity("Error creating auction: " + e.getMessage()).build();
         }
     }

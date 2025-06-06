@@ -27,12 +27,17 @@ public class AuthenticationBean implements Authentication {
         return authService.getUsernameFromToken(token);
     }
 
+    @Override // NEW METHOD IMPLEMENTATION
+    public String getRoleFromToken(String token) {
+        return authService.getRoleFromToken(token);
+    }
+
     @Override
     public void logout(String token) {
         authService.invalidateToken(token);
     }
 
-    @Override // NEW METHOD IMPLEMENTATION
+    @Override
     public boolean registerUser(String username, String password) {
         return authService.registerUser(username, password);
     }

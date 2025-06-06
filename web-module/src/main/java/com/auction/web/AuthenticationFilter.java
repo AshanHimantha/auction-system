@@ -1,31 +1,31 @@
 package com.auction.web;
 
 import com.auction.ejb.Authentication;
-import jakarta.annotation.Priority; // UPDATED
-import jakarta.ejb.EJB; // UPDATED
-import jakarta.ws.rs.Priorities; // UPDATED
-import jakarta.ws.rs.container.ContainerRequestContext; // UPDATED
-import jakarta.ws.rs.container.ContainerRequestFilter; // UPDATED
-import jakarta.ws.rs.core.HttpHeaders; // UPDATED
-import jakarta.ws.rs.core.Response; // UPDATED
-import jakarta.ws.rs.core.SecurityContext; // UPDATED
-import jakarta.ws.rs.ext.Provider; // UPDATED
+import jakarta.annotation.Priority;
+import jakarta.ejb.EJB;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.ext.Provider;
 
 import java.io.IOException;
 import java.security.Principal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Authenticated
-@Provider
-@Priority(Priorities.AUTHENTICATION)
+@Authenticated // This filter applies to methods/classes annotated with @Authenticated
+@Provider // Makes it discoverable by JAX-RS runtime
+@Priority(Priorities.AUTHENTICATION) // Runs before authorization filters
 public class AuthenticationFilter implements ContainerRequestFilter {
 
     private static final Logger LOGGER = Logger.getLogger(AuthenticationFilter.class.getName());
     private static final String AUTH_SCHEME = "Bearer";
 
     @EJB
-    private Authentication authenticationBean;
+    private Authentication authenticationBean; // Inject the Authentication EJB
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -46,13 +46,16 @@ public class AuthenticationFilter implements ContainerRequestFilter {
             }
 
             final String username = authenticationBean.getUsernameFromToken(token);
-            if (username == null) {
-                LOGGER.log(Level.WARNING, "AuthenticationFilter: Token not associated with a user: {0}", token);
+            final String role = authenticationBean.getRoleFromToken(token); // NEW: Get user's role from token
+
+            if (username == null || role == null) { // Ensure both username and role are present
+                LOGGER.log(Level.WARNING, "AuthenticationFilter: Token not associated with a user or role: {0}", token);
                 abortWithUnauthorized(requestContext);
                 return;
             }
 
-            LOGGER.log(Level.INFO, "AuthenticationFilter: User {0} authenticated successfully.", username);
+            LOGGER.log(Level.INFO, "AuthenticationFilter: User {0} (Role: {1}) authenticated successfully for path: {2}",
+                    new Object[]{username, role, requestContext.getUriInfo().getAbsolutePath()});
 
             final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
             requestContext.setSecurityContext(new SecurityContext() {
@@ -62,8 +65,8 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 }
 
                 @Override
-                public boolean isUserInRole(String role) {
-                    return "user".equals(role);
+                public boolean isUserInRole(String roleName) { // NEW: Check if the user's role matches the requested roleName
+                    return role != null && role.equalsIgnoreCase(roleName);
                 }
 
                 @Override

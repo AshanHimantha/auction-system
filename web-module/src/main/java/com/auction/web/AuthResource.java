@@ -31,10 +31,12 @@ public class AuthResource {
         String token = authenticationBean.login(username, password);
         if (token != null) {
             LOGGER.log(Level.INFO, "Login successful for user: {0}", username);
+            String role = authenticationBean.getRoleFromToken(token); // NEW: Get user's role
             return Response.ok(Json.createObjectBuilder()
                             .add("message", "Login successful")
                             .add("token", token)
                             .add("username", username)
+                            .add("role", role) // NEW: Include role in response
                             .build())
                     .build();
         } else {
@@ -62,16 +64,28 @@ public class AuthResource {
         return Response.ok("Logged out successfully.").build();
     }
 
-    @GET
-    @Path("/me")
-    @Authenticated
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response whoami(@Context SecurityContext securityContext) {
-        String username = securityContext.getUserPrincipal().getName();
-        return Response.ok(Json.createObjectBuilder().add("username", username).build()).build();
-    }
+   @GET
+   @Path("/me")
+   @Authenticated
+   @Produces(MediaType.APPLICATION_JSON)
+   public Response whoami(@Context SecurityContext securityContext,
+                         @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+       String username = securityContext.getUserPrincipal().getName();
 
-    // --- NEW ENDPOINT FOR USER REGISTRATION ---
+       if (authHeader != null && authHeader.startsWith("Bearer ")) {
+           String token = authHeader.substring("Bearer ".length()).trim();
+           String role = authenticationBean.getRoleFromToken(token);
+           return Response.ok(Json.createObjectBuilder()
+                   .add("username", username)
+                   .add("role", role)
+                   .build()).build();
+       } else {
+           return Response.status(Response.Status.BAD_REQUEST)
+                   .entity(Json.createObjectBuilder().add("message", "Invalid authorization header").build())
+                   .build();
+       }
+   }
+
     @POST
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
