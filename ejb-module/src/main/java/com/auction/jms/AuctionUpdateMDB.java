@@ -29,7 +29,7 @@ public class AuctionUpdateMDB implements MessageListener {
                 webSocketBroadcaster.broadcast(updateJson);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Error processing message: {0}", e.getMessage());
-                e.printStackTrace();
+
             }
         }
     }

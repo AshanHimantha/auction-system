@@ -35,7 +35,6 @@ public class BidManagerBean implements BidManager {
             return "Bid received for processing.";
         } catch (JMSException e) {
             System.err.println("Error sending bid message to JMS: " + e.getMessage());
-            e.printStackTrace();
             return "Error submitting bid. Please try again.";
         }
     }

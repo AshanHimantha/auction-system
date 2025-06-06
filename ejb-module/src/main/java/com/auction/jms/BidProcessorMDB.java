@@ -43,7 +43,7 @@ public class BidProcessorMDB implements MessageListener {
         if (message instanceof MapMessage) {
             try {
                 MapMessage mapMessage = (MapMessage) message;
-                Long auctionId = mapMessage.getLong("auctionId");
+                long auctionId = mapMessage.getLong("auctionId");
                 double bidAmount = mapMessage.getDouble("bidAmount");
                 String bidderName = mapMessage.getString("bidderName"); // This is the bidder name from the *incoming* message
 
@@ -109,7 +109,7 @@ public class BidProcessorMDB implements MessageListener {
                 throw new jakarta.ejb.EJBException("JMS Exception", e);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "MDB: Unexpected error during bid processing: " + e.getMessage(), e);
-                e.printStackTrace();
+
                 throw new jakarta.ejb.EJBException("Unexpected error", e);
             }
         } else {
