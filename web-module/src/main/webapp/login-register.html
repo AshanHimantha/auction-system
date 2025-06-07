@@ -1,178 +1,390 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="h-full" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login / Register</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .log-container { max-height: 150px; overflow-y: auto; font-size: 0.875rem; }
-    .log-container::-webkit-scrollbar { width: 8px; }
-    .log-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    .log-container::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-    .log-container::-webkit-scrollbar-thumb:hover { background: #555; }
-  </style>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Login | Auction System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(240 5.9% 90%)",
+                        input: "hsl(240 5.9% 90%)",
+                        ring: "hsl(240 5% 64.9%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(240 10% 3.9%)",
+                        primary: {
+                            DEFAULT: "hsl(240 5.9% 10%)",
+                            foreground: "hsl(0 0% 98%)"
+                        },
+                        muted: {
+                            DEFAULT: "hsl(240 4.8% 95.9%)",
+                            foreground: "hsl(240 3.8% 46.1%)"
+                        }
+                    },
+                    animation: {
+                        "fade-in": "fade-in 0.3s ease-out"
+                    },
+                    keyframes: {
+                        "fade-in": {
+                            "0%": {opacity: 0},
+                            "100%": {opacity: 1}
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal flex items-center justify-center min-h-screen">
+<body class="bg-white h-full font-sans antialiased">
+<div class="flex min-h-full">
+    <!-- Left side with image -->
+    <div class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
+        <!-- Soft background elements -->
+        <div class="absolute top-20 left-16 w-32 h-32 bg-indigo-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div class="absolute bottom-20 right-16 w-40 h-40 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+        <div class="absolute top-1/2 left-1/4 w-24 h-24 bg-purple-100 rounded-full mix-blend-multiply filter blur-xl opacity-50"></div>
 
-<div class="container mx-auto p-4 max-w-lg">
-  <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Auction System</h1>
+        <!-- Content Container -->
+        <div class="z-10 relative w-full h-full flex flex-col items-center justify-center p-8">
+            <!-- Logo and Heading -->
+            <div class="text-center mb-8 animate-fade-in">
+                <h1 class="text-4xl font-bold text-gray-800">Auction System</h1>
+                <p class="text-gray-600 mt-3 text-lg">Discover, bid, and win amazing items</p>
+            </div>
 
-  <!-- Login/Registration Section -->
-  <div id="auth-section" class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <h2 id="auth-title" class="text-2xl font-semibold text-gray-700 mb-4">Login to Your Account</h2>
-    <form id="auth-form">
-      <div class="mb-4">
-        <label for="auth-username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
-        <input type="text" id="auth-username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-      </div>
-      <div class="mb-6">
-        <label for="auth-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
-        <input type="password" id="auth-password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" required>
-      </div>
-      <div class="flex items-center justify-between">
-        <button type="submit" id="auth-submit-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          Login
-        </button>
-        <button type="button" id="toggle-auth-mode-btn" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
-          Register Instead
-        </button>
-      </div>
-      <p class="text-sm text-gray-600 mt-4" id="auth-hint">Demo Users: user1/pass1 (USER), user2/pass2 (USER), admin1/pass1 (ADMIN)</p>
-    </form>
-    <p id="auth-message" class="text-red-500 text-xs italic mt-4"></p>
-  </div>
+            <!-- Main Image -->
+            <div class="w-full max-w-lg mx-auto mb-8">
+                <img id="promo-image" src="assets/img.jpg" alt="Auction System" class="w-full h-auto rounded-lg shadow-lg">
+            </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Application Log</h2>
-    <div id="app-log" class="bg-gray-50 p-4 rounded-md border border-gray-200 log-container text-sm text-gray-700">
-      <p class="text-gray-500 italic">Messages will appear here.</p>
+            <!-- Features -->
+
+        </div>
     </div>
-  </div>
+
+    <!-- Right side with login form -->
+    <div class="flex w-full lg:w-1/2 flex-col justify-center bg-white px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+        <div class="mx-auto w-full max-w-sm lg:w-96 animate-fade-in">
+            <!-- Logo -->
+            <div class="mb-8">
+                <div class="mx-auto w-10 h-10 bg-primary flex items-center justify-center rounded-full">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-linecap="round"
+                         stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <h2 class="mt-6 text-center text-2xl font-bold tracking-tight text-gray-900">
+                    Sign in to your account
+                </h2>
+            </div>
+
+            <!-- Auth Card -->
+            <div class="bg-white px-6 py-8 shadow-md sm:rounded-xl sm:border border-border">
+                <!-- Auth Form -->
+                <form class="space-y-5" id="auth-form">
+                    <!-- Form Tabs -->
+                    <div class="flex space-x-2 border-b border-border">
+                        <button class="pb-2 text-sm font-medium border-b-2 border-primary px-1 text-primary transition-all" id="login-tab"
+                                type="button">
+                            Login
+                        </button>
+                        <button class="pb-2 text-sm font-medium border-b-2 border-transparent px-1 text-muted-foreground hover:text-foreground transition-all" id="register-tab"
+                                type="button">
+                            Register
+                        </button>
+                    </div>
+
+                    <!-- Username Field -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700" for="username">Username</label>
+                        <div class="relative">
+                            <input class="pl-3 pr-10 py-2 w-full rounded-md border-2 border-gray-300 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" id="username" name="username"
+                                   placeholder="Enter username"
+                                   type="text">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 hidden"
+                                 id="username-valid-icon">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor"
+                                     stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 6L9 17l-5-5"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700" for="password">Password</label>
+                        <div class="relative">
+                            <input class="pl-3 pr-10 py-2 w-full rounded-md border-2 border-gray-300 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" id="password" name="password"
+                                   placeholder="Enter password"
+                                   type="password">
+                            <button class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600" id="toggle-password"
+                                    type="button">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor"
+                                     stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember me checkbox -->
+                    <div class="flex items-center space-x-2">
+                        <input class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" id="remember-me"
+                               type="checkbox">
+                        <label class="text-sm text-gray-700" for="remember-me">Remember me</label>
+                    </div>
+
+                    <!-- Auth message -->
+                    <div class="text-sm text-red-500 hidden animate-fade-in" id="auth-message"></div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button class="flex w-full justify-center items-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                type="submit">
+                            <span id="auth-button-text">Sign in</span>
+                            <span class="ml-2 hidden" id="auth-loading-spinner">
+                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
+                     xmlns="http://www.w3.org/2000/svg">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        fill="currentColor"></path>
+                </svg>
+              </span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Demo accounts -->
+                <div class="mt-6 border-t border-border pt-4" id="demo-accounts">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3">Try with demo accounts</h3>
+                    <div class="space-y-2">
+                        <button class="demo-account-btn flex items-center justify-between w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm hover:bg-muted transition-colors"
+                                data-password="pass1" data-username="user1">
+                            <span class="font-medium">Regular User</span>
+                            <span class="text-xs text-muted-foreground">Click to fill</span>
+                        </button>
+
+                        <button class="demo-account-btn flex items-center justify-between w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm hover:bg-muted transition-colors"
+                                data-password="pass1" data-username="admin1">
+                            <span class="font-medium">Admin User</span>
+                            <span class="text-xs text-muted-foreground">Click to fill</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-  const authTitle = document.getElementById('auth-title');
-  const authForm = document.getElementById('auth-form');
-  const authUsernameInput = document.getElementById('auth-username');
-  const authPasswordInput = document.getElementById('auth-password');
-  const authSubmitBtn = document.getElementById('auth-submit-btn');
-  const toggleAuthModeBtn = document.getElementById('toggle-auth-mode-btn');
-  const authMessage = document.getElementById('auth-message');
-  const authHint = document.getElementById('auth-hint');
-  const appLog = document.getElementById('app-log');
+    // Constants
+    const CONTEXT_ROOT = '/auction-system';
 
-  const CONTEXT_ROOT = '/auction-system';
-  let isLoginMode = true;
+    // DOM Elements
+    const authForm = document.getElementById('auth-form');
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordBtn = document.getElementById('toggle-password');
+    const authMessage = document.getElementById('auth-message');
+    const authButtonText = document.getElementById('auth-button-text');
+    const authLoadingSpinner = document.getElementById('auth-loading-spinner');
+    const demoAccountsSection = document.getElementById('demo-accounts');
+    const usernameValidIcon = document.getElementById('username-valid-icon');
 
-  // --- Utility Functions for logging ---
-  function logMessage(message, className = '') {
-    const p = document.createElement('p');
-    p.className = `mb-1 ${className}`;
-    p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-    appLog.appendChild(p);
-    appLog.scrollTop = appLog.scrollHeight;
-  }
+    // State
+    let isLoginMode = true;
 
-  // --- Authentication Functions ---
-  async function handleAuthSubmit(event) {
-    event.preventDefault();
-    const username = authUsernameInput.value;
-    const password = authPasswordInput.value;
-    let url, method;
+    // Functions
+    function setAuthMode(loginMode) {
+        isLoginMode = loginMode;
 
-    if (isLoginMode) {
-      url = `${CONTEXT_ROOT}/api/auth/login`;
-      method = 'Login';
-    } else {
-      url = `${CONTEXT_ROOT}/api/auth/register`;
-      method = 'Register';
-    }
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await response.json();
-
-      if (response.ok || response.status === 201) { // 201 Created for registration
-        authMessage.textContent = data.message || `${method} successful.`;
-        authMessage.className = 'text-green-600 text-xs italic mt-4';
-        if (isLoginMode) { // On successful login, save token & redirect
-          localStorage.setItem('authToken', data.token);
-          localStorage.setItem('currentUsername', data.username);
-          localStorage.setItem('currentUserRole', data.role);
-          logMessage(`Logged in as ${data.username} (${data.role}). Redirecting...`, 'text-blue-600');
-          window.location.href = `${CONTEXT_ROOT}/index.html`; // Redirect to main auction page
-        } else { // After successful registration, switch to login mode
-          switchAuthMode(true);
-          authUsernameInput.value = username;
-          authPasswordInput.value = '';
+        if (isLoginMode) {
+            loginTab.classList.add('border-primary', 'text-primary');
+            loginTab.classList.remove('border-transparent', 'text-muted-foreground');
+            registerTab.classList.add('border-transparent', 'text-muted-foreground');
+            registerTab.classList.remove('border-primary', 'text-primary');
+            authButtonText.textContent = 'Sign in';
+            demoAccountsSection.classList.remove('hidden');
+        } else {
+            registerTab.classList.add('border-primary', 'text-primary');
+            registerTab.classList.remove('border-transparent', 'text-muted-foreground');
+            loginTab.classList.add('border-transparent', 'text-muted-foreground');
+            loginTab.classList.remove('border-primary', 'text-primary');
+            authButtonText.textContent = 'Create account';
+            demoAccountsSection.classList.add('hidden');
         }
-      } else {
-        authMessage.textContent = data.message || `${method} failed.`;
-        authMessage.className = 'text-red-500 text-xs italic mt-4';
-        logMessage(`Authentication Error: ${data.message || `${method} failed.`}`, 'text-red-500');
-      }
-    } catch (error) {
-      authMessage.textContent = `Network error during ${method.toLowerCase()}.`;
-      authMessage.className = 'text-red-700 text-xs italic mt-4';
-      logMessage(`Network Error: ${error.message}`, 'text-red-700');
-      console.error(`${method} error:`, error);
+
+        clearMessage();
+        authForm.reset();
     }
-  }
 
-  function switchAuthMode(toLogin) {
-    isLoginMode = toLogin;
-    authTitle.textContent = isLoginMode ? 'Login to Your Account' : 'Register New Account';
-    authSubmitBtn.textContent = isLoginMode ? 'Login' : 'Register';
-    toggleAuthModeBtn.textContent = isLoginMode ? 'Register Instead' : 'Login Instead';
-    authHint.textContent = isLoginMode ? 'Demo Users: user1/pass1 (USER), user2/pass2 (USER), admin1/pass1 (ADMIN)' : 'Choose a unique username and strong password.';
-    authMessage.textContent = '';
-    authForm.reset();
-  }
+    function showMessage(text, isError = true) {
+        authMessage.textContent = text;
+        authMessage.classList.remove('hidden');
 
-  // --- Initialization ---
-  document.addEventListener('DOMContentLoaded', () => {
-    authForm.addEventListener('submit', handleAuthSubmit);
-    toggleAuthModeBtn.addEventListener('click', () => switchAuthMode(!isLoginMode));
+        if (isError) {
+            authMessage.classList.remove('text-green-500');
+            authMessage.classList.add('text-red-500');
+        } else {
+            authMessage.classList.remove('text-red-500');
+            authMessage.classList.add('text-green-500');
+        }
+    }
 
-    // If already logged in, redirect to main auction page
-    const storedToken = localStorage.getItem('authToken');
-    const storedUsername = localStorage.getItem('currentUsername');
-    const storedUserRole = localStorage.getItem('currentUserRole');
+    function clearMessage() {
+        authMessage.classList.add('hidden');
+        authMessage.textContent = '';
+    }
 
-    if (storedToken && storedUsername && storedUserRole) {
-      logMessage('Session found. Validating...', 'text-gray-600');
-      fetch(`${CONTEXT_ROOT}/api/auth/me`, {
-        headers: { 'Authorization': `Bearer ${storedToken}` }
-      })
-              .then(response => {
-                if (response.ok) {
-                  return response.json();
+    function setLoading(isLoading) {
+        if (isLoading) {
+            authButtonText.textContent = isLoginMode ? 'Signing in...' : 'Creating...';
+            authLoadingSpinner.classList.remove('hidden');
+        } else {
+            authButtonText.textContent = isLoginMode ? 'Sign in' : 'Create account';
+            authLoadingSpinner.classList.add('hidden');
+        }
+    }
+
+    function togglePasswordVisibility() {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            togglePasswordBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        </svg>
+      `;
+        } else {
+            passwordInput.type = 'password';
+            togglePasswordBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      `;
+        }
+    }
+
+    async function handleAuth(e) {
+        e.preventDefault();
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+            showMessage('Please enter both username and password.');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const url = isLoginMode
+                ? `${CONTEXT_ROOT}/api/auth/login`
+                : `${CONTEXT_ROOT}/api/auth/register`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                if (isLoginMode) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('currentUsername', data.username);
+                    localStorage.setItem('currentUserRole', data.role);
+                    showMessage('Login successful! Redirecting...', false);
+                    setTimeout(() => window.location.href = `${CONTEXT_ROOT}/index.html`, 1000);
                 } else {
-                  throw new Error('Token validation failed on server.');
+                    showMessage('Account created successfully! You can now login.', false);
+                    setAuthMode(true);
                 }
-              })
-              .then(data => {
-                logMessage(`Session valid for ${data.username} (${data.role}). Redirecting...`, 'text-green-600');
-                window.location.href = `${CONTEXT_ROOT}/index.html`; // Redirect to main auction page
-              })
-              .catch(error => {
-                logMessage('Session invalid/expired. Please log in.', 'text-red-500');
-                console.error('Initial token validation error:', error);
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('currentUsername');
-                localStorage.removeItem('currentUserRole');
-                switchAuthMode(true); // Default to login mode
-              });
-    } else {
-      switchAuthMode(true); // Default to login mode if no session
-      logMessage('Please log in or register to participate in auctions.', 'text-orange-500');
+            } else {
+                showMessage(data.message || 'Authentication failed');
+            }
+        } catch (error) {
+            showMessage('Network error. Please check your connection and try again.');
+            console.error('Auth error:', error);
+        } finally {
+            setLoading(false);
+        }
     }
-  });
+
+    // Event Listeners
+    loginTab.addEventListener('click', () => setAuthMode(true));
+    registerTab.addEventListener('click', () => setAuthMode(false));
+    authForm.addEventListener('submit', handleAuth);
+    togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
+
+    // Demo accounts functionality
+    document.querySelectorAll('.demo-account-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            usernameInput.value = btn.dataset.username;
+            passwordInput.value = btn.dataset.password;
+            usernameValidIcon.classList.remove('hidden');
+        });
+    });
+
+    // Username validation icon toggle
+    usernameInput.addEventListener('input', () => {
+        if (usernameInput.value.trim().length > 0) {
+            usernameValidIcon.classList.remove('hidden');
+        } else {
+            usernameValidIcon.classList.add('hidden');
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        const storedToken = localStorage.getItem('authToken');
+
+        if (storedToken) {
+            // Validate token and redirect if valid
+            fetch(`${CONTEXT_ROOT}/api/auth/me`, {
+                headers: {'Authorization': `Bearer ${storedToken}`}
+            })
+                .then(res => {
+                    if (res.ok) {
+                        window.location.href = `${CONTEXT_ROOT}/index.html`;
+                    } else {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('currentUsername');
+                        localStorage.removeItem('currentUserRole');
+                    }
+                })
+                .catch(() => {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUsername');
+                    localStorage.removeItem('currentUserRole');
+                });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedToken = localStorage.getItem('authToken');
+
+            // Add hover pause/play functionality to the promo video
+            const promoVideo = document.getElementById('promo-video');
+            if (promoVideo) {
+                promoVideo.addEventListener('mouseenter', () => promoVideo.pause());
+                promoVideo.addEventListener('mouseleave', () => promoVideo.play());
+            }
+        });
+        // Initialize to login mode
+        setAuthMode(true);
+    });
 </script>
 </body>
 </html>
