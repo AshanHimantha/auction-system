@@ -5,6 +5,7 @@
       <map>
         <entry key="file://$PROJECT_DIR$/web-module/src/main/webapp/auctions.jsp" value="file://$PROJECT_DIR$/web-module/src/main/webapp" />
         <entry key="file://$PROJECT_DIR$/web-module/src/main/webapp/categories.html" value="file://$PROJECT_DIR$/web-module/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/web-module/src/main/webapp/create-auction.html" value="file://$PROJECT_DIR$/web-module/src/main/webapp" />
       </map>
     </option>
   </component>

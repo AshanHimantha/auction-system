@@ -1,90 +1,361 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Auction</title>
+    <title>Create New Auction - AuctionHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(240 5.9% 15%)",
+                        input: "hsl(240 3.7% 15.9%)",
+                        ring: "hsl(240 4.9% 83.9%)",
+                        background: "hsl(240 10% 3.9%)",
+                        foreground: "hsl(0 0% 98%)",
+                        primary: {
+                            DEFAULT: "hsl(240 5.9% 90%)",
+                            foreground: "hsl(240 5.9% 10%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(240 3.7% 15.9%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(240 3.7% 15.9%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        card: {
+                            DEFAULT: "hsl(240 10% 5%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(240 3.7% 15.9%)",
+                            foreground: "hsl(240 5% 64.9%)",
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         .log-container { max-height: 150px; overflow-y: auto; font-size: 0.875rem; }
         .log-container::-webkit-scrollbar { width: 8px; }
-        .log-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .log-container::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-        .log-container::-webkit-scrollbar-thumb:hover { background: #555; }
-        .image-preview { max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px; }
+        .log-container::-webkit-scrollbar-track { background: hsl(240 3.7% 15.9%); border-radius: 10px; }
+        .log-container::-webkit-scrollbar-thumb { background: hsl(240 5% 30%); border-radius: 10px; }
+        .log-container::-webkit-scrollbar-thumb:hover { background: hsl(240 5% 40%); }
+        
+        .image-preview { 
+            width: 100px;
+            height: 100px; 
+            object-fit: cover; 
+            border-radius: 8px;
+            border: 2px solid hsl(240 5.9% 30%);
+            transition: transform 0.2s;
+        }
+        
+        .image-preview:hover {
+            transform: scale(1.05);
+        }
+
+        .shadcn-input {
+            background-color: hsl(240 3.7% 15.9%);
+            border: 1px solid hsl(240 5.9% 20%);
+            border-radius: 0.5rem;
+            color: hsl(0 0% 98%);
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .shadcn-input:focus {
+            outline: none;
+            border-color: hsl(240 5% 64.9%);
+            box-shadow: 0 0 0 3px hsla(240, 5%, 64.9%, 0.2);
+        }
+        
+        .shadcn-input::placeholder {
+            color: hsl(240 5% 50%);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .shadcn-button {
+            background-color: hsl(240 5.9% 90%);
+            color: hsl(240 5.9% 10%);
+            font-weight: 500;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            min-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shadcn-button:hover {
+            background-color: hsl(240 5.9% 95%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .shadcn-button:active {
+            transform: translateY(0);
+        }
+
+        .shadcn-button-secondary {
+            background-color: hsl(240 3.7% 15.9%);
+            color: hsl(0 0% 98%);
+        }
+
+        .shadcn-button-secondary:hover {
+            background-color: hsl(240 3.7% 20%);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 1rem;
+        }
+        
+        .form-hint {
+            font-size: 0.875rem;
+            color: hsl(240 5% 64.9%);
+            margin-top: 0.25rem;
+        }
+        
+        .button-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .button-loading::after {
+            content: "";
+            position: absolute;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: button-loading-spinner 0.6s linear infinite;
+            margin-left: 0.5rem;
+        }
+        
+        @keyframes button-loading-spinner {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .input-error {
+            border-color: rgb(239, 68, 68) !important;
+        }
+        
+        .error-message {
+            color: rgb(239, 68, 68);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<body class="bg-background text-foreground font-sans leading-normal tracking-normal">
 
-<div class="container mx-auto p-4 max-w-2xl">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800">Create New Auction</h1>
-        <div id="user-controls" class="flex items-center space-x-4">
-            <a href="auctions.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">Back to Auctions</a>
-            <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300">Logout</button>
+<!-- Header/Navigation -->
+<header class="bg-card shadow-md border-b border-border">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <a href="index.jsp" class="font-bold text-2xl text-foreground">AuctionHub</a>
+            </div>
+
+            <nav class="hidden md:flex space-x-8">
+                <a href="index.jsp" class="text-muted-foreground hover:text-primary transition duration-300">Home</a>
+                <a href="auctions.html" class="text-muted-foreground hover:text-primary transition duration-300">Auctions</a>
+                <a href="#" class="text-muted-foreground hover:text-primary transition duration-300">Categories</a>
+                <a href="index.jsp#how-it-works" class="text-muted-foreground hover:text-primary transition duration-300">How It Works</a>
+                <a href="index.jsp#contact" class="text-muted-foreground hover:text-primary transition duration-300">Contact</a>
+            </nav>
+
+            <div class="flex items-center space-x-4" id="user-controls">
+                <a href="login-register.html" class="md:block shadcn-button" id="login-button">Login</a>
+                <div id="user-profile" class="hidden">
+                    <span id="username-display" class="text-muted-foreground mr-2"></span>
+                    <button id="logout-btn" class="text-red-400 hover:text-red-300">Logout</button>
+                </div>
+                <button class="md:hidden" id="mobile-menu-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (hidden by default) -->
+        <div class="md:hidden hidden mt-4 pb-4" id="mobile-menu">
+            <a href="index.jsp" class="block py-2 text-muted-foreground">Home</a>
+            <a href="auctions.html" class="block py-2 text-muted-foreground">Auctions</a>
+            <a href="#" class="block py-2 text-muted-foreground">Categories</a>
+            <a href="index.jsp#how-it-works" class="block py-2 text-muted-foreground">How It Works</a>
+            <a href="index.jsp#contact" class="block py-2 text-muted-foreground">Contact</a>
+            <a href="login-register.html" class="block py-2 text-muted-foreground" id="mobile-login-button">Login</a>
         </div>
     </div>
+</header>
 
+<!-- Page Header -->
+<section class="bg-card border-b border-border py-8">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-foreground mb-4">Create New Auction</h1>
+        <p class="text-muted-foreground max-w-3xl">Create a new auction listing to sell your items. Fill out the details below to get started.</p>
+        <p class="text-muted-foreground mt-2">You must be an administrator to create auctions.</p>
+    </div>
+</section>
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Progress Indicator -->
+    <div class="bg-card rounded-lg shadow-md p-6 mb-6 border border-border">
+        <h2 class="text-xl font-semibold mb-4">Create Auction Progress</h2>
+        <div class="w-full bg-secondary/30 rounded-full h-2.5">
+            <div id="progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between mt-2 text-sm text-muted-foreground">
+            <span>Start</span>
+            <span>Details</span>
+            <span>Images</span>
+            <span>Complete</span>
+        </div>
+    </div>
+    
     <!-- Admin: Create New Auction Form -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <p class="text-gray-600 mb-4">You must be an administrator to create auctions.</p>
-        <form id="create-auction-form">
-            <div class="mb-4">
-                <label for="auction-title" class="block text-gray-700 text-sm font-bold mb-2">Title:</label>
-                <input type="text" id="auction-title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-            </div>
-            <div class="mb-4">
-                <label for="auction-description" class="block text-gray-700 text-sm font-bold mb-2">Description:</label>
-                <textarea id="auction-description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3" required></textarea>
-            </div>
-            <!-- New Category Dropdown with fixed options -->
-            <div class="mb-4">
-                <label for="auction-category" class="block text-gray-700 text-sm font-bold mb-2">Category:</label>
-                <select id="auction-category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                    <option value="">-- Select a Category --</option>
-                    <option value="1">Electronics</option>
-                    <option value="2">Collectibles</option>
-                    <option value="3">Art</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label for="auction-image-urls" class="block text-gray-700 text-sm font-bold mb-2">Image URLs (comma-separated, max 3):</label>
-                <input type="text" id="auction-image-urls" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., url1, url2">
-                <div id="image-previews" class="flex flex-wrap gap-2 mt-2"></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label for="auction-start-price" class="block text-gray-700 text-sm font-bold mb-2">Starting Price ($):</label>
-                    <input type="number" step="0.01" min="0.01" id="auction-start-price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+    <div class="bg-card rounded-lg shadow-md p-6 mb-8 border border-border">
+        <form id="create-auction-form" class="space-y-6">
+            <!-- Basic Information Section -->
+            <div class="p-4 border border-border rounded-lg bg-black/20">
+                <h3 class="text-xl font-medium mb-4">Basic Information</h3>
+                
+                <div class="form-group">
+                    <label for="auction-title" class="form-label">Title</label>
+                    <input type="text" id="auction-title" class="shadcn-input" required 
+                           placeholder="Enter a descriptive title for your auction">
+                    <p class="form-hint">Choose a clear, specific title (max 100 characters)</p>
                 </div>
-                <div>
-                    <label for="auction-min-increment" class="block text-gray-700 text-sm font-bold mb-2">Min Increment ($):</label>
-                    <input type="number" step="0.01" min="0.01" id="auction-min-increment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+
+                <div class="form-group">
+                    <label for="auction-description" class="form-label">Description</label>
+                    <textarea id="auction-description" class="shadcn-input" rows="4" required
+                              placeholder="Provide detailed information about the item"></textarea>
+                    <p class="form-hint">Include condition, features, and other relevant details</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="auction-category" class="form-label">Category</label>
+                    <select id="auction-category" class="shadcn-input" required>
+                        <option value="">-- Select a Category --</option>
+                        <option value="1">Electronics</option>
+                        <option value="2">Collectibles</option>
+                        <option value="3">Art</option>
+                    </select>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label for="auction-start-time" class="block text-gray-700 text-sm font-bold mb-2">Start Date & Time:</label>
-                    <input type="datetime-local" id="auction-start-time" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+            
+            <!-- Images Section -->
+            <div class="p-4 border border-border rounded-lg bg-black/20">
+                <h3 class="text-xl font-medium mb-4">Images</h3>
+                <p class="form-hint mb-4">Add up to 3 high-quality images of your item</p>
+                
+                <div class="space-y-4">
+                    <div class="form-group">
+                        <label for="auction-image-url-1" class="form-label">Main Image URL</label>
+                        <input type="text" id="auction-image-url-1" class="shadcn-input" 
+                               placeholder="https://example.com/image1.jpg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="auction-image-url-2" class="form-label">Additional Image URL</label>
+                        <input type="text" id="auction-image-url-2" class="shadcn-input" 
+                               placeholder="https://example.com/image2.jpg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="auction-image-url-3" class="form-label">Additional Image URL</label>
+                        <input type="text" id="auction-image-url-3" class="shadcn-input" 
+                               placeholder="https://example.com/image3.jpg">
+                    </div>
                 </div>
-                <div>
-                    <label for="auction-end-time" class="block text-gray-700 text-sm font-bold mb-2">End Date & Time:</label>
-                    <input type="datetime-local" id="auction-end-time" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                
+                <div class="mt-4">
+                    <label class="form-label">Image Previews</label>
+                    <div id="image-previews" class="flex flex-wrap gap-4 mt-2 p-4 border border-border rounded-lg bg-black/30 min-h-[120px] items-center justify-center">
+                        <p id="no-images-message" class="text-muted-foreground italic">No images added yet</p>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center justify-between">
-                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            
+            <!-- Pricing & Timing Section -->
+            <div class="p-4 border border-border rounded-lg bg-black/20">
+                <h3 class="text-xl font-medium mb-4">Pricing & Timing</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="auction-start-price" class="form-label">Starting Price ($)</label>
+                        <input type="number" step="0.01" min="0.01" id="auction-start-price" class="shadcn-input" required
+                               placeholder="0.00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auction-min-increment" class="form-label">Minimum Bid Increment ($)</label>
+                        <input type="number" step="0.01" min="0.01" id="auction-min-increment" class="shadcn-input" required
+                               placeholder="0.00">
+                        <p class="form-hint">Minimum amount a new bid must exceed the current highest bid</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auction-start-time" class="form-label">Start Date & Time</label>
+                        <input type="datetime-local" id="auction-start-time" class="shadcn-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auction-end-time" class="form-label">End Date & Time</label>
+                        <input type="datetime-local" id="auction-end-time" class="shadcn-input" required>
+                        <p class="form-hint">Must be after the start time</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+                <a href="auctions.html" class="shadcn-button shadcn-button-secondary w-full sm:w-auto order-2 sm:order-1">
+                    Cancel
+                </a>
+                <button type="submit" id="submit-button" class="shadcn-button w-full sm:w-auto order-1 sm:order-2">
                     Create Auction
                 </button>
             </div>
-            <p id="create-auction-message" class="text-red-500 text-xs italic mt-4"></p>
+            
+            <div id="create-auction-message" class="hidden p-4 rounded-lg mt-4"></div>
         </form>
     </div>
 
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Application Log</h2>
-        <div id="app-log" class="bg-gray-50 p-4 rounded-md border border-gray-200 log-container text-sm text-gray-700">
-            <p class="text-gray-500 italic">Messages will appear here.</p>
+    <div class="bg-card rounded-lg shadow-md p-6 border border-border">
+        <h2 class="text-2xl font-semibold text-foreground mb-4">Application Log</h2>
+        <div id="app-log" class="bg-secondary/30 p-4 rounded-md border border-border log-container text-sm text-foreground">
+            <p class="text-muted-foreground italic">Messages will appear here.</p>
         </div>
     </div>
 </div>
@@ -93,11 +364,34 @@
     const logoutBtn = document.getElementById('logout-btn');
     const createAuctionForm = document.getElementById('create-auction-form');
     const createAuctionMessage = document.getElementById('create-auction-message');
-    const auctionImageUrlsInput = document.getElementById('auction-image-urls');
     const imagePreviewsDiv = document.getElementById('image-previews');
+    const noImagesMessage = document.getElementById('no-images-message');
     const appLog = document.getElementById('app-log');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const progressBar = document.getElementById('progress-bar');
+    const submitButton = document.getElementById('submit-button');
+    
+    // Image URL input fields
+    const imageUrl1Input = document.getElementById('auction-image-url-1');
+    const imageUrl2Input = document.getElementById('auction-image-url-2');
+    const imageUrl3Input = document.getElementById('auction-image-url-3');
 
     const CONTEXT_ROOT = '/auction-system';
+    
+    // Form progress tracking
+    let formProgress = 0;
+    
+    // Track validation state for each field
+    const fieldStates = {
+        'auction-title': false,
+        'auction-description': false,
+        'auction-category': false,
+        'auction-start-price': false,
+        'auction-min-increment': false,
+        'auction-start-time': false,
+        'auction-end-time': false
+    };
 
     // --- Utility Functions ---
     function getAuthToken() { return localStorage.getItem('authToken'); }
@@ -112,11 +406,74 @@
         appLog.scrollTop = appLog.scrollHeight;
     }
 
+    function showNotification(message, isError = false) {
+        createAuctionMessage.textContent = message;
+        createAuctionMessage.className = isError 
+            ? 'block p-4 rounded-lg mt-4 bg-red-900/30 text-red-400 border border-red-800' 
+            : 'block p-4 rounded-lg mt-4 bg-green-900/30 text-green-400 border border-green-800';
+        createAuctionMessage.classList.remove('hidden');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            createAuctionMessage.classList.add('hidden');
+        }, 5000);
+    }
+    
+    function updateProgressBar() {
+        // Count completed fields
+        let completed = Object.values(fieldStates).filter(Boolean).length;
+        let total = Object.keys(fieldStates).length;
+        let percentage = Math.round((completed / total) * 100);
+        
+        progressBar.style.width = `${percentage}%`;
+        return percentage;
+    }
+    
+    function validateField(field) {
+        const input = document.getElementById(field);
+        const isValid = input.checkValidity();
+        
+        if (!isValid && input.value !== '') {
+            input.classList.add('input-error');
+            
+            // Check if error message already exists
+            let errorMsgElement = input.nextElementSibling;
+            if (!errorMsgElement || !errorMsgElement.classList.contains('error-message')) {
+                errorMsgElement = document.createElement('p');
+                errorMsgElement.classList.add('error-message');
+                input.parentNode.insertBefore(errorMsgElement, input.nextSibling);
+            }
+            
+            errorMsgElement.textContent = input.validationMessage;
+        } else {
+            input.classList.remove('input-error');
+            
+            // Remove any existing error message
+            const errorMsgElement = input.nextElementSibling;
+            if (errorMsgElement && errorMsgElement.classList.contains('error-message')) {
+                errorMsgElement.remove();
+            }
+        }
+        
+        fieldStates[field] = isValid && input.value !== '';
+        updateProgressBar();
+        
+        return isValid;
+    }
+
+    // Toggle mobile menu
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
     // --- Authentication/Authorization Check on Page Load ---
     document.addEventListener('DOMContentLoaded', () => {
         const token = getAuthToken();
         const username = getCurrentUsername();
         const role = getCurrentUserRole();
+
+        // Update UI based on authentication
+        updateUIBasedOnAuth();
 
         // Redirect if not logged in or not ADMIN
         if (!token || !username || !role) {
@@ -130,9 +487,6 @@
             return;
         }
 
-        // If authenticated as ADMIN, display user info
-        document.getElementById('current-username').textContent = username;
-        document.getElementById('current-user-role').textContent = role;
         logMessage(`Logged in as ${username} (${role}). Ready to create auctions.`, 'text-green-600');
 
         // Set min datetime for start and end times to now
@@ -146,7 +500,39 @@
 
         document.getElementById('auction-start-time').min = currentDateTime;
         document.getElementById('auction-end-time').min = currentDateTime;
+        
+        // Add validation listeners to all required fields
+        Object.keys(fieldStates).forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            field.addEventListener('input', () => validateField(fieldId));
+            field.addEventListener('change', () => validateField(fieldId));
+        });
     });
+
+    function updateUIBasedOnAuth() {
+        const token = getAuthToken();
+        const username = getCurrentUsername();
+        const userRole = getCurrentUserRole();
+        const loginButton = document.getElementById('login-button');
+        const mobileLoginButton = document.getElementById('mobile-login-button');
+        const userProfileDiv = document.getElementById('user-profile');
+        const usernameDisplay = document.getElementById('username-display');
+
+        if (token && username) {
+            // User is logged in
+            loginButton.classList.add('hidden');
+            mobileLoginButton.classList.add('hidden');
+
+            userProfileDiv.classList.remove('hidden');
+            usernameDisplay.textContent = username;
+        } else {
+            // User is not logged in
+            loginButton.classList.remove('hidden');
+            mobileLoginButton.classList.remove('hidden');
+
+            userProfileDiv.classList.add('hidden');
+        }
+    }
 
     // --- Logout Handler ---
     logoutBtn.addEventListener('click', async () => {
@@ -176,42 +562,131 @@
     });
 
     // --- New Auction Creation Functions ---
-    auctionImageUrlsInput.addEventListener('input', (event) => {
-        const urls = event.target.value.split(',').map(url => url.trim()).filter(url => url.length > 0).slice(0, 3);
-        imagePreviewsDiv.innerHTML = '';
-        urls.forEach(url => {
+    // Update image preview when any image URL field changes
+    function updateImagePreview(url, index) {
+        // Clear any existing preview for this index
+        const existingPreview = document.querySelector(`#image-previews [data-index="${index}"]`);
+        if (existingPreview) {
+            existingPreview.remove();
+        }
+        
+        // If URL is not empty, create a new preview
+        if (url && url.trim().length > 0) {
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'relative';
+            previewContainer.dataset.index = index;
+            
             const img = document.createElement('img');
             img.src = url;
             img.className = 'image-preview';
-            img.alt = 'Image preview';
-            imagePreviewsDiv.appendChild(img);
-        });
+            img.alt = `Image ${index} preview`;
+            
+            // Add remove button
+            const removeButton = document.createElement('button');
+            removeButton.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center';
+            removeButton.innerHTML = '&times;';
+            removeButton.onclick = (e) => {
+                e.preventDefault();
+                document.getElementById(`auction-image-url-${index}`).value = '';
+                updateImagePreview('', index);
+            };
+            
+            previewContainer.appendChild(img);
+            previewContainer.appendChild(removeButton);
+            imagePreviewsDiv.appendChild(previewContainer);
+            
+            // Hide the "no images" message if there are images
+            noImagesMessage.classList.add('hidden');
+        }
+        
+        // Check if there are any images, show/hide the no images message
+        const previews = imagePreviewsDiv.querySelectorAll('[data-index]');
+        if (previews.length === 0) {
+            noImagesMessage.classList.remove('hidden');
+        }
+    }
+
+    // Add event listeners to all three image URL input fields
+    imageUrl1Input.addEventListener('input', (e) => updateImagePreview(e.target.value, 1));
+    imageUrl2Input.addEventListener('input', (e) => updateImagePreview(e.target.value, 2));
+    imageUrl3Input.addEventListener('input', (e) => updateImagePreview(e.target.value, 3));
+    
+    // Validate the end time is after the start time
+    document.getElementById('auction-end-time').addEventListener('change', function() {
+        const startTime = document.getElementById('auction-start-time').value;
+        const endTime = this.value;
+        
+        if (startTime && endTime && new Date(endTime) <= new Date(startTime)) {
+            this.setCustomValidity('End time must be after start time');
+            this.classList.add('input-error');
+            
+            // Add error message
+            let errorMsg = this.nextElementSibling;
+            if (!errorMsg || !errorMsg.classList.contains('error-message')) {
+                errorMsg = document.createElement('p');
+                errorMsg.classList.add('error-message');
+                this.parentNode.insertBefore(errorMsg, this.nextSibling);
+            }
+            errorMsg.textContent = 'End time must be after start time';
+        } else {
+            this.setCustomValidity('');
+            this.classList.remove('input-error');
+            
+            // Remove error message if it exists
+            const errorMsg = this.nextElementSibling;
+            if (errorMsg && errorMsg.classList.contains('error-message')) {
+                errorMsg.remove();
+            }
+        }
+        
+        validateField('auction-end-time');
     });
 
     createAuctionForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        
+        // Validate all fields
+        let isFormValid = true;
+        Object.keys(fieldStates).forEach(field => {
+            if (!validateField(field)) {
+                isFormValid = false;
+            }
+        });
+        
+        if (!isFormValid) {
+            showNotification('Please fix the errors in the form.', true);
+            return;
+        }
+        
         const token = getAuthToken();
         const role = getCurrentUserRole();
 
-        if (!token || role !== 'ADMIN') { // Double-check authorization
+        if (!token || role !== 'ADMIN') {
             logMessage('Unauthorized to create auction. Please log in as Admin.', 'text-red-500');
+            showNotification('You are not authorized to create auctions. Please log in as an Admin.', true);
             return;
         }
+
+        // Show loading state
+        submitButton.disabled = true;
+        submitButton.classList.add('button-loading');
+        submitButton.textContent = 'Creating...';
 
         const title = document.getElementById('auction-title').value;
         const description = document.getElementById('auction-description').value;
         const categoryId = document.getElementById('auction-category').value;
-        const imageUrls = document.getElementById('auction-image-urls').value.split(',').map(url => url.trim()).filter(url => url.length > 0).slice(0, 3);
+        
+        // Get image URLs from the three separate input fields
+        const imageUrls = [
+            document.getElementById('auction-image-url-1').value.trim(),
+            document.getElementById('auction-image-url-2').value.trim(),
+            document.getElementById('auction-image-url-3').value.trim()
+        ].filter(url => url.length > 0);
+        
         const startPrice = parseFloat(document.getElementById('auction-start-price').value);
         const minIncrement = parseFloat(document.getElementById('auction-min-increment').value);
         const startTime = document.getElementById('auction-start-time').value;
         const endTime = document.getElementById('auction-end-time').value;
-
-        if (isNaN(startPrice) || isNaN(minIncrement) || !title || !description || !categoryId || !startTime || !endTime) {
-            createAuctionMessage.textContent = 'Please fill all required fields correctly.';
-            createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';
-            return;
-        }
 
         try {
             const response = await fetch(`${CONTEXT_ROOT}/api/auctions/create`, {
@@ -244,27 +719,38 @@
             }
 
             if (response.ok || response.status === 201) {
-                createAuctionMessage.textContent = `Auction created successfully! ID: ${data.id}`;
-                createAuctionMessage.className = 'text-green-600 text-xs italic mt-4';
+                showNotification(`Auction created successfully! ID: ${data.id}`, false);
                 createAuctionForm.reset();
                 imagePreviewsDiv.innerHTML = '';
+                imagePreviewsDiv.appendChild(noImagesMessage);
+                noImagesMessage.classList.remove('hidden');
                 logMessage(`New auction created: ID ${data.id}, Title: "${data.title}"`, 'text-blue-600');
-                // Optionally redirect back to auctions.html or keep on this page
+                
+                // Reset progress
+                Object.keys(fieldStates).forEach(key => fieldStates[key] = false);
+                updateProgressBar();
+                
+                // Redirect to the auction page after a short delay
+                setTimeout(() => {
+                    window.location.href = `auction-detail.html?id=${data.id}`;
+                }, 2000);
             } else if (response.status === 401 || response.status === 403) {
-                createAuctionMessage.textContent = `Authorization failed: ${data.message}. Please re-login with admin role.`;
-                createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';
+                showNotification(`Authorization failed: ${data.message}. Please re-login with admin role.`, true);
                 logMessage('Auth failed during auction creation. Redirecting to login.', 'text-red-500');
-                handleLogout();
+                logout();
             } else {
-                createAuctionMessage.textContent = `Error creating auction: ${data.message || 'Unknown error'}`;
-                createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';
-                logMessage(`Error creating auction: ${data.message || 'Unknown error'}`, 'text-red-700');
+                showNotification(`Error creating auction: ${data.message || 'Unknown error'}`, true);
+                logMessage(`Error creating auction: ${data.message || 'Unknown error'}`, 'text-red-500');
             }
         } catch (error) {
-            createAuctionMessage.textContent = `Network error during auction creation: ${error.message}`;
-            createAuctionMessage.className = 'text-red-700 text-xs italic mt-4';
-            logMessage(`Network error during auction creation: ${error.message}`, 'text-red-700');
+            showNotification(`Network error during auction creation: ${error.message}`, true);
+            logMessage(`Network error during auction creation: ${error.message}`, 'text-red-500');
             console.error('Create auction error:', error);
+        } finally {
+            // Reset button state
+            submitButton.disabled = false;
+            submitButton.classList.remove('button-loading');
+            submitButton.textContent = 'Create Auction';
         }
     });
 </script>
