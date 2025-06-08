@@ -9,6 +9,7 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
 import java.time.LocalDateTime; // NEW IMPORT
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -59,11 +60,7 @@ public class AuctionInMemoryStorageSingleton {
     public Collection<Auction> getAllActiveAuctions() {
         // MODIFIED: Filter by active status and within start/end times
         LocalDateTime now = LocalDateTime.now();
-        return auctions.values().stream()
-                .filter(a -> a.getStatus() == AuctionStatus.ACTIVE &&
-                        !now.isBefore(a.getStartTime()) && // Auction has started or is starting now
-                        !now.isAfter(a.getEndTime()))      // Auction has not ended or is ending now
-                .collect(java.util.stream.Collectors.toList()); // Convert to list
+        return new ArrayList<>(auctions.values()); // Convert to list
     }
 
     @Lock(LockType.WRITE)

@@ -36,7 +36,7 @@
                 <span id="user-info-display" class="text-gray-700 hidden">
                     Logged in as <span id="current-username" class="font-bold"></span> (<span id="current-user-role" class="font-bold"></span>)
                 </span>
-      <a href="index.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">All Auctions</a>
+      <a href="index.jsp" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">All Auctions</a>
       <a href="login-register.html" id="login-link" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 hidden">Login / Register</a>
       <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 hidden">Logout</button>
     </div>
@@ -422,7 +422,7 @@
     auctionId = getUrlParameter('id'); // Get auction ID from URL
     if (!auctionId) {
       // If no ID in URL, redirect to main auction list
-      window.location.href = `${CONTEXT_ROOT}/index.html`;
+      window.location.href = `index.jsp`;
       return;
     }
 

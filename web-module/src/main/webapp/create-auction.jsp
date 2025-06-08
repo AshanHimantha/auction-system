@@ -20,7 +20,7 @@
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-4xl font-bold text-gray-800">Create New Auction</h1>
         <div id="user-controls" class="flex items-center space-x-4">
-            <a href="auctions.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">Back to Auctions</a>
+            <a href="auctions.jsp" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">Back to Auctions</a>
             <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300">Logout</button>
         </div>
     </div>
@@ -111,12 +111,12 @@
         // Redirect if not logged in or not ADMIN
         if (!token || !username || !role) {
             logMessage('Not logged in. Redirecting to login page.', 'text-red-500');
-            window.location.href = `${CONTEXT_ROOT}/index.html`;
+            window.location.href = `index.jsp`;
             return;
         }
         if (role !== 'ADMIN') {
             logMessage('You must be an ADMIN to create auctions. Redirecting to auctions list.', 'text-red-500');
-            window.location.href = `${CONTEXT_ROOT}/auctions.html`;
+            window.location.href = `auctions.jsp`;
             return;
         }
 
@@ -162,7 +162,7 @@
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUsername');
             localStorage.removeItem('currentUserRole');
-            window.location.href = `${CONTEXT_ROOT}/index.html`;
+            window.location.href = `index.jsp`;
         }
     });
 
@@ -228,7 +228,7 @@
                 createAuctionForm.reset();
                 imagePreviewsDiv.innerHTML = '';
                 logMessage(`New auction created: ID ${data.id}, Title: "${data.title}"`, 'text-blue-600');
-                // Optionally redirect back to auctions.html or keep on this page
+                // Optionally redirect back to auctions.jsp or keep on this page
             } else if (response.status === 401 || response.status === 403) {
                 createAuctionMessage.textContent = `Authorization failed: ${data.message}. Please re-login with admin role.`;
                 createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';

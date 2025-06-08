@@ -1,0 +1,58 @@
+/* Add to your CSS file */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+.pulse-dot {
+    animation: pulse 1.5s infinite;
+}
+
+.auction-status-ended .pulse-dot {
+    animation: none;
+}
+
+*{
+    scroll-behavior: smooth;
+
+}
+.auction-card-image {
+    height: 200px;
+    object-fit: cover;
+}
+.countdown {
+    font-family: monospace;
+    font-weight: bold;
+}
+.auction-status {
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    font-size: 0.75rem;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes smooth-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+.animate-rotate {
+    animation: rotate 2s linear infinite;
+}
+
+.animate-smooth-bounce {
+    animation: smooth-bounce 1.5s ease-in-out infinite;
+}

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Auctions - AuctionHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(240 5.9% 15%)",
+                        input: "hsl(240 3.7% 15.9%)",
+                        ring: "hsl(240 4.9% 83.9%)",
+                        background: "hsl(240 10% 3.9%)",
+                        foreground: "hsl(0 0% 98%)",
+                        primary: {
+                            DEFAULT: "hsl(240 5.9% 90%)",
+                            foreground: "hsl(240 5.9% 10%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(240 3.7% 15.9%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(240 3.7% 15.9%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        card: {
+                            DEFAULT: "hsl(240 10% 5%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(240 3.7% 15.9%)",
+                            foreground: "hsl(240 5% 64.9%)",
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .auction-card-image {
+            height: 200px;
+            object-fit: cover;
+        }
+        .countdown {
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .auction-status {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            display: inline-block;
+            font-size: 0.75rem;
+        }
+        .status-active { background-color: hsl(160, 84%, 39%, 0.2); color: hsl(160, 84%, 78%); }
+        .status-waiting { background-color: hsl(50, 100%, 50%, 0.2); color: hsl(38, 92%, 69%); }
+        .status-ended { background-color: hsl(0, 84%, 60%, 0.2); color: hsl(0, 84%, 80%); }
+
+        .shadcn-input {
+            background-color: hsl(240 3.7% 15.9%);
+            border: 1px solid hsl(240 5.9% 20%);
+            border-radius: 0.375rem;
+            color: hsl(0 0% 98%);
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .shadcn-input:focus {
+            outline: none;
+            border-color: hsl(240 5% 64.9%);
+            box-shadow: 0 0 0 2px hsla(240, 5%, 64.9%, 0.2);
+        }
+
+        .shadcn-button {
+            background-color: hsl(240 5.9% 90%);
+            color: hsl(240 5.9% 10%);
+            font-weight: 500;
+            border-radius: 0.375rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .shadcn-button:hover {
+            background-color: hsl(240 5.9% 95%);
+        }
+
+        .shadcn-button-secondary {
+            background-color: hsl(240 3.7% 15.9%);
+            color: hsl(0 0% 98%);
+        }
+
+        .shadcn-button-secondary:hover {
+            background-color: hsl(240 3.7% 20%);
+        }
+
+        .filter-button.active {
+            background-color: hsl(240 5.9% 90%);
+            color: hsl(240 5.9% 10%);
+        }
+
+        .pagination-button {
+            min-width: 2.5rem;
+            height: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-button.active {
+            background-color: hsl(240 5.9% 90%);
+            color: hsl(240 5.9% 10%);
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground font-sans leading-normal tracking-normal">
+<!-- Header/Navigation -->
+<header class="bg-card shadow-md border-b border-border">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <a href="index.jsp" class="font-bold text-2xl text-foreground">AuctionHub</a>
+            </div>
+
+            <nav class="hidden md:flex space-x-8">
+                <a href="index.jsp" class="text-muted-foreground hover:text-primary transition duration-300">Home</a>
+                <a href="auctions.html" class="text-primary font-medium">Auctions</a>
+                <a href="#" class="text-muted-foreground hover:text-primary transition duration-300">Categories</a>
+                <a href="index.jsp#how-it-works" class="text-muted-foreground hover:text-primary transition duration-300">How It Works</a>
+                <a href="index.jsp#contact" class="text-muted-foreground hover:text-primary transition duration-300">Contact</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <a href="login-register.html" class="md:block shadcn-button" id="login-button">Login</a>
+                <a href="create-auction.jsp" id="create-auction-link-nav" class="bg-muted hover:bg-accent text-foreground font-medium py-2 px-4 rounded transition duration-300 hidden">Create Auction</a>
+                <div id="user-profile" class="hidden">
+                    <span id="username-display" class="text-muted-foreground mr-2"></span>
+                    <button id="logout-button" class="text-red-400 hover:text-red-300">Logout</button>
+                </div>
+                <button class="md:hidden" id="mobile-menu-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (hidden by default) -->
+        <div class="md:hidden hidden mt-4 pb-4" id="mobile-menu">
+            <a href="index.jsp" class="block py-2 text-muted-foreground">Home</a>
+            <a href="auctions.html" class="block py-2 text-primary font-medium">Auctions</a>
+            <a href="#" class="block py-2 text-muted-foreground">Categories</a>
+            <a href="index.jsp#how-it-works" class="block py-2 text-muted-foreground">How It Works</a>
+            <a href="index.jsp#contact" class="block py-2 text-muted-foreground">Contact</a>
+            <a href="login-register.html" class="block py-2 text-muted-foreground" id="mobile-login-button">Login</a>
+        </div>
+    </div>
+</header>
+
+<!-- Page Header -->
+<section class="bg-card border-b border-border py-8">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-foreground mb-4">Browse Auctions</h1>
+        <p class="text-muted-foreground max-w-3xl">Explore our complete collection of active and upcoming auctions. Find unique items and great deals from sellers around the world.</p>
+    </div>
+</section>
+
+<!-- Search and Filter Section -->
+<section class="py-8 bg-background border-b border-border">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <!-- Search -->
+            <div class="flex-grow max-w-lg">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="Search auctions..." class="shadcn-input pr-10">
+                    <button id="search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-2">
+                <button class="filter-button bg-accent px-4 py-2 rounded-md text-sm active" data-filter="all">All</button>
+                <button class="filter-button bg-accent px-4 py-2 rounded-md text-sm" data-filter="active">Active</button>
+                <button class="filter-button bg-accent px-4 py-2 rounded-md text-sm" data-filter="upcoming">Upcoming</button>
+                <button class="filter-button bg-accent px-4 py-2 rounded-md text-sm" data-filter="ended">Ended</button>
+            </div>
+
+            <!-- Sort -->
+            <div class="min-w-[200px]">
+                <select id="sort-select" class="shadcn-input text-sm">
+                    <option value="ending-soon">Ending Soon</option>
+                    <option value="newest">Newest First</option>
+                    <option value="price-high">Highest Price</option>
+                    <option value="price-low">Lowest Price</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Auctions Grid -->
+<section class="py-12 bg-background">
+    <div class="container mx-auto px-4">
+        <!-- Results Count -->
+        <div class="mb-8 flex justify-between items-center">
+            <p class="text-muted-foreground"><span id="results-count">0</span> auctions found</p>
+            <div class="flex items-center gap-2">
+                <span class="text-muted-foreground text-sm">View</span>
+                <button class="p-1 rounded bg-accent" id="grid-view">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                </button>
+                <button class="p-1 rounded bg-muted" id="list-view">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Auction Grid -->
+        <div id="auctions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
+            <!-- Auctions will be loaded here -->
+            <div class="col-span-full text-center py-16">
+                <div class="inline-block animate-spin rounded-full border-t-2 border-b-2 border-primary h-12 w-12 mb-4"></div>
+                <p class="text-muted-foreground">Loading auctions...</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-center mt-12">
+            <div class="inline-flex rounded-md">
+                <button id="prev-page" class="pagination-button bg-accent text-foreground mr-2" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="pagination-numbers" class="inline-flex space-x-2">
+                    <!-- Page numbers will be generated here -->
+                </div>
+                <button id="next-page" class="pagination-button bg-accent text-foreground ml-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- No Results Section -->
+<section id="no-results" class="py-16 bg-background hidden">
+    <div class="container mx-auto px-4 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-muted-foreground mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h2 class="text-2xl font-bold text-foreground mb-4">No auctions found</h2>
+        <p class="text-muted-foreground max-w-lg mx-auto">We couldn't find any auctions matching your criteria. Try adjusting your filters or search terms.</p>
+        <button id="clear-filters" class="mt-6 shadcn-button">Clear Filters</button>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-background text-foreground pt-12 pb-8 border-t border-border">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-lg font-bold mb-4">AuctionHub</h3>
+                <p class="text-muted-foreground mb-4">Your trusted online auction platform with secure bidding and amazing deals.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                        </svg>
+                    </a>
+                    <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">About Us</a></li>
+                    <li><a href="index.jsp#contact" class="text-muted-foreground hover:text-primary">Contact</a></li>
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">Terms of Service</a></li>
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-4">Categories</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">Electronics</a></li>
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">Collectibles</a></li>
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">Real Estate</a></li>
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">Jewelry</a></li>
+                    <li><a href="#" class="text-muted-foreground hover:text-primary">View All</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-4">Newsletter</h3>
+                <p class="text-muted-foreground mb-4">Subscribe to get updates on new auctions and special deals.</p>
+                <form>
+                    <div class="flex">
+                        <input type="email" placeholder="Enter your email" class="shadcn-input rounded-r-none">
+                        <button type="submit" class="bg-primary text-primary-foreground px-4 py-2 rounded-r-lg transition duration-300 hover:bg-primary/90">
+                            Subscribe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="border-t border-border mt-8 pt-8 text-center text-muted-foreground text-sm">
+            <p>© 2023 AuctionHub. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Constants
+    const CONTEXT_ROOT = '/auction-system'; // Ensure this matches your deployment path
+    const ITEMS_PER_PAGE = 12;
+
+    // State variables
+    let auctions = [];
+    let filteredAuctions = [];
+    let currentPage = 1;
+    let currentFilter = 'all';
+    let currentSearchTerm = '';
+    let currentSort = 'ending-soon';
+    let totalPages = 0;
+    let currentView = 'grid'; // 'grid' or 'list'
+
+    // DOM Elements
+    let auctionsGrid;
+    let searchInput;
+    let searchButton;
+    let filterButtons;
+    let sortSelect;
+    let resultsCount;
+    let paginationNumbers;
+    let prevPageButton;
+    let nextPageButton;
+    let gridViewButton;
+    let listViewButton;
+    let noResultsSection;
+    let clearFiltersButton;
+
+    // Authentication related elements
+    let createAuctionLinkNav;
+    let loginButton;
+    let mobileLoginButton;
+    let userProfileDiv;
+    let usernameDisplay;
+    let logoutButton;
+    let mobileMenuButton;
+    let mobileMenu;
+
+    // --- Utility Functions ---
+    function getAuthToken() { return localStorage.getItem('authToken'); }
+    function getCurrentUsername() { return localStorage.getItem('currentUsername'); }
+    function getCurrentUserRole() { return localStorage.getItem('currentUserRole'); }
+
+    function formatTimeRemaining(endTimeString) {
+        const now = new Date().getTime();
+        const endTime = new Date(endTimeString).getTime();
+        const distance = endTime - now;
+
+        if (distance < 0) {
+            return 'ENDED';
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    // --- Authentication UI Update ---
+    function updateUIBasedOnAuth() {
+        const token = getAuthToken();
+        const username = getCurrentUsername();
+        const userRole = getCurrentUserRole();
+
+        if (token && username) {
+            // User is logged in
+            loginButton.classList.add('hidden'); // Hide desktop login button
+            mobileLoginButton.classList.add('hidden'); // Hide mobile login button
+
+            userProfileDiv.classList.remove('hidden'); // Show user profile section
+            usernameDisplay.textContent = username;
+
+            // Show create auction link for admins, hide for others
+            if (userRole === 'ADMIN') {
+                createAuctionLinkNav.classList.remove('hidden');
+            } else {
+                createAuctionLinkNav.classList.add('hidden');
+            }
+        } else {
+            // User is not logged in
+            loginButton.classList.remove('hidden'); // Show desktop login button
+            mobileLoginButton.classList.remove('hidden'); // Show mobile login button
+
+            userProfileDiv.classList.add('hidden'); // Hide user profile section
+            createAuctionLinkNav.classList.add('hidden'); // Hide create auction link
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUsername');
+        localStorage.removeItem('currentUserRole');
+        updateUIBasedOnAuth(); // Update UI after logout
+        window.location.href = 'index.html'; // Redirect to home page
+    }
+
+    // --- Auction Status Functions ---
+    function getAuctionStatus(auction) {
+        const now = new Date();
+        const startTime = new Date(auction.startTime);
+        const endTime = new Date(auction.endTime);
+
+        if (now < startTime) {
+            return { text: 'WAITING', class: 'status-waiting' };
+        } else if (now > endTime) {
+            return { text: 'ENDED', class: 'status-ended' };
+        } else {
+            return { text: 'ACTIVE', class: 'status-active' };
+        }
+    }
+
+    // --- Auction Card Creation ---
+    function createAuctionCard(auction) {
+        const card = document.createElement('div');
+        card.className = 'bg-card border border-border rounded-lg overflow-hidden flex flex-col h-full transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary';
+        card.setAttribute('data-auction-end', auction.endTime);
+
+        const status = getAuctionStatus(auction);
+
+        const imageUrl = auction.imageUrls && auction.imageUrls.length > 0
+            ? auction.imageUrls[0]
+            : 'https://placehold.co/600x400/1f1f23/e2e2e2.png?text=No+Image';
+
+        card.innerHTML = `
+            <div class="relative">
+                <img src="${imageUrl}" alt="${auction.title}" class="w-full h-48 object-cover auction-card-image">
+                <span class="auction-status ${status.class} absolute top-2 right-2">${status.text}</span>
+            </div>
+            <div class="p-5 flex-grow">
+                <h3 class="font-bold text-lg text-foreground mb-2 hover:text-primary">
+                    <a href="${CONTEXT_ROOT}/auction-details.html?id=${auction.id}">${auction.title}</a>
+                </h3>
+                <p class="text-muted-foreground text-sm mb-4">${auction.description.substring(0, 80)}...</p>
+                <div class="flex justify-between items-end">
+                    <div>
+                        <p class="text-muted-foreground text-xs">Current Bid</p>
+                        <p class="text-primary font-bold">$${auction.currentBid.toFixed(2)}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-muted-foreground text-xs">Time Left</p>
+                        <p class="countdown text-sm">${formatTimeRemaining(auction.endTime)}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-secondary/30 px-5 py-3 border-t border-border">
+                <a href="${CONTEXT_ROOT}/auction-details.html?id=${auction.id}" class="text-primary hover:text-primary hover:underline font-medium text-sm">View Details</a>
+            </div>
+        `;
+        return card;
+    }
+
+    function createAuctionListItem(auction) {
+        const item = document.createElement('div');
+        item.className = 'bg-card border border-border rounded-lg p-4 flex flex-col md:flex-row gap-4 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary';
+        item.setAttribute('data-auction-end', auction.endTime);
+
+        const status = getAuctionStatus(auction);
+
+        const imageUrl = auction.imageUrls && auction.imageUrls.length > 0
+            ? auction.imageUrls[0]
+            : 'https://placehold.co/600x400/1f1f23/e2e2e2.png?text=No+Image';
+
+        item.innerHTML = `
+            <div class="md:w-1/4 relative">
+                <img src="${imageUrl}" alt="${auction.title}" class="w-full h-48 md:h-full object-cover rounded">
+                <span class="auction-status ${status.class} absolute top-2 right-2">${status.text}</span>
+            </div>
+            <div class="md:w-3/4 flex flex-col">
+                <div class="flex-grow">
+                    <h3 class="font-bold text-lg text-foreground mb-2 hover:text-primary">
+                        <a href="${CONTEXT_ROOT}/auction-details.html?id=${auction.id}">${auction.title}</a>
+                    </h3>
+                    <p class="text-muted-foreground text-sm mb-4">${auction.description.substring(0, 150)}...</p>
+                </div>
+                <div class="flex flex-wrap justify-between items-center mt-4">
+                    <div>
+                        <p class="text-muted-foreground text-xs">Current Bid</p>
+                        <p class="text-primary font-bold">$${auction.currentBid.toFixed(2)}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-muted-foreground text-xs">Time Left</p>
+                        <p class="countdown text-sm">${formatTimeRemaining(auction.endTime)}</p>
+                    </div>
+                    <a href="${CONTEXT_ROOT}/auction-details.html?id=${auction.id}" class="mt-4 md:mt-0 shadcn-button shadcn-button-secondary text-sm py-2">View Details</a>
+                </div>
+            </div>
+        `;
+        return item;
+    }
+
+    // --- Auction Data Functions ---
+    async function fetchAllAuctions() {
+        try {
+            const response = await fetch(`${CONTEXT_ROOT}/api/auctions`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            auctions = await response.json();
+            applyFiltersAndSort();
+        } catch (error) {
+            console.error('Failed to load auctions:', error);
+            auctionsGrid.innerHTML = '<p class="col-span-full text-center text-red-400">Error loading auctions. Please try again later.</p>';
+        }
+    }
+
+    function applyFiltersAndSort() {
+        // Apply filters
+        filteredAuctions = auctions.filter(auction => {
+            const now = new Date();
+            const startTime = new Date(auction.startTime);
+            const endTime = new Date(auction.endTime);
+
+            // Apply status filter
+            if (currentFilter === 'active' && (now < startTime || now > endTime)) {
+                return false;
+            }
+            if (currentFilter === 'upcoming' && now >= startTime) {
+                return false;
+            }
+            if (currentFilter === 'ended' && now <= endTime) {
+                return false;
+            }
+
+            // Apply search term if any
+            if (currentSearchTerm) {
+                const searchLower = currentSearchTerm.toLowerCase();
+                return (
+                    auction.title.toLowerCase().includes(searchLower) ||
+                    auction.description.toLowerCase().includes(searchLower)
+                );
+            }
+
+            return true;
+        });
+
+        // Apply sorting
+        filteredAuctions.sort((a, b) => {
+            switch (currentSort) {
+                case 'ending-soon':
+                    return new Date(a.endTime) - new Date(b.endTime);
+                case 'newest':
+                    return new Date(b.startTime) - new Date(a.startTime);
+                case 'price-high':
+                    return b.currentBid - a.currentBid;
+                case 'price-low':
+                    return a.currentBid - b.currentBid;
+                default:
+                    return 0;
+            }
+        });
+
+        // Update the UI
+        updateResultsCount();
+        updatePagination();
+        displayAuctions();
+    }
+
+    function displayAuctions() {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const pageAuctions = filteredAuctions.slice(startIndex, endIndex);
+
+        auctionsGrid.innerHTML = '';
+
+        if (pageAuctions.length === 0) {
+            noResultsSection.classList.remove('hidden');
+            return;
+        }
+
+        noResultsSection.classList.add('hidden');
+
+        if (currentView === 'grid') {
+            // Set grid layout
+            auctionsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10';
+            pageAuctions.forEach(auction => {
+                auctionsGrid.appendChild(createAuctionCard(auction));
+            });
+        } else {
+            // Set list layout
+            auctionsGrid.className = 'flex flex-col gap-6 mb-10';
+            pageAuctions.forEach(auction => {
+                auctionsGrid.appendChild(createAuctionListItem(auction));
+            });
+        }
+    }
+
+    function updateResultsCount() {
+        resultsCount.textContent = filteredAuctions.length;
+    }
+
+    function updatePagination() {
+        totalPages = Math.ceil(filteredAuctions.length / ITEMS_PER_PAGE) || 1;
+        currentPage = Math.min(currentPage, totalPages);
+
+        // Update pagination buttons
+        prevPageButton.disabled = currentPage <= 1;
+        nextPageButton.disabled = currentPage >= totalPages;
+
+        paginationNumbers.innerHTML = '';
+
+        // Display pagination numbers (with limits for many pages)
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+            addPageButton(1);
+            if (startPage > 2) {
+                addEllipsis();
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            addPageButton(i);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                addEllipsis();
+            }
+            addPageButton(totalPages);
+        }
+    }
+
+    function addPageButton(pageNum) {
+        const button = document.createElement('button');
+        button.className = `pagination-button ${pageNum === currentPage ? 'active' : 'bg-accent text-foreground'}`;
+        button.textContent = pageNum;
+        button.addEventListener('click', () => {
+            currentPage = pageNum;
+            displayAuctions();
+            updatePagination();
+            window.scrollTo(0, 0);
+        });
+        paginationNumbers.appendChild(button);
+    }
+
+    function addEllipsis() {
+        const span = document.createElement('span');
+        span.className = 'pagination-button bg-transparent text-muted-foreground';
+        span.textContent = '...';
+        paginationNumbers.appendChild(span);
+    }
+
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+        mobileMenu.classList.toggle('hidden');
+    }
+
+    // --- Event Handlers ---
+    function handleSearch() {
+        currentSearchTerm = searchInput.value.trim();
+        currentPage = 1; // Reset to first page
+        applyFiltersAndSort();
+    }
+
+    function handleFilterClick(filterType) {
+        currentFilter = filterType;
+        currentPage = 1; // Reset to first page
+
+        // Update active filter button
+        filterButtons.forEach(btn => {
+            if (btn.dataset.filter === filterType) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        applyFiltersAndSort();
+    }
+
+    function handleSortChange() {
+        currentSort = sortSelect.value;
+        currentPage = 1; // Reset to first page
+        applyFiltersAndSort();
+    }
+
+    function handlePrevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            displayAuctions();
+            updatePagination();
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function handleNextPage() {
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayAuctions();
+            updatePagination();
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function handleViewChange(view) {
+        currentView = view;
+
+        if (view === 'grid') {
+            gridViewButton.classList.remove('bg-muted');
+            gridViewButton.classList.add('bg-accent');
+            listViewButton.classList.remove('bg-accent');
+            listViewButton.classList.add('bg-muted');
+        } else {
+            gridViewButton.classList.remove('bg-accent');
+            gridViewButton.classList.add('bg-muted');
+            listViewButton.classList.remove('bg-muted');
+            listViewButton.classList.add('bg-accent');
+        }
+
+        displayAuctions();
+    }
+
+    function handleClearFilters() {
+        searchInput.value = '';
+        currentSearchTerm = '';
+        currentFilter = 'all';
+        currentSort = 'ending-soon';
+        currentPage = 1;
+
+        // Reset UI selections
+        sortSelect.value = 'ending-soon';
+        filterButtons.forEach(btn => {
+            if (btn.dataset.filter === 'all') {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        applyFiltersAndSort();
+    }
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Assign DOM elements
+        auctionsGrid = document.getElementById('auctions-grid');
+        searchInput = document.getElementById('search-input');
+        searchButton = document.getElementById('search-button');
+        filterButtons = document.querySelectorAll('.filter-button');
+        sortSelect = document.getElementById('sort-select');
+        resultsCount = document.getElementById('results-count');
+        paginationNumbers = document.getElementById('pagination-numbers');
+        prevPageButton = document.getElementById('prev-page');
+        nextPageButton = document.getElementById('next-page');
+        gridViewButton = document.getElementById('grid-view');
+        listViewButton = document.getElementById('list-view');
+        noResultsSection = document.getElementById('no-results');
+        clearFiltersButton = document.getElementById('clear-filters');
+
+        // Auth-related DOM elements
+        createAuctionLinkNav = document.getElementById('create-auction-link-nav');
+        loginButton = document.getElementById('login-button');
+        mobileLoginButton = document.getElementById('mobile-login-button');
+        userProfileDiv = document.getElementById('user-profile');
+        usernameDisplay = document.getElementById('username-display');
+        logoutButton = document.getElementById('logout-button');
+        mobileMenuButton = document.getElementById('mobile-menu-button');
+        mobileMenu = document.getElementById('mobile-menu');
+
+        // Auth-related UI updates
+        updateUIBasedOnAuth();
+
+        // Add event listeners
+        searchButton.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                handleFilterClick(button.dataset.filter);
+            });
+        });
+
+        sortSelect.addEventListener('change', handleSortChange);
+        prevPageButton.addEventListener('click', handlePrevPage);
+        nextPageButton.addEventListener('click', handleNextPage);
+        gridViewButton.addEventListener('click', () => handleViewChange('grid'));
+        listViewButton.addEventListener('click', () => handleViewChange('list'));
+        clearFiltersButton.addEventListener('click', handleClearFilters);
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', logout);
+        }
+
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', toggleMobileMenu);
+        }
+
+        // Fetch auctions data
+        fetchAllAuctions();
+
+        // Update countdown timers periodically
+        setInterval(() => {
+            document.querySelectorAll('.countdown').forEach(element => {
+                const auctionCard = element.closest('[data-auction-end]');
+                if (auctionCard) {
+                    const endTime = auctionCard.dataset.auctionEnd;
+                    element.textContent = formatTimeRemaining(endTime);
+                }
+            });
+        }, 1000);
+    });
+</script>
+
+
+</body>
+</html>

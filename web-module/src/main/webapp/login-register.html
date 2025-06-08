@@ -306,7 +306,7 @@
                     localStorage.setItem('currentUsername', data.username);
                     localStorage.setItem('currentUserRole', data.role);
                     showMessage('Login successful! Redirecting...', false);
-                    setTimeout(() => window.location.href = `${CONTEXT_ROOT}/index.html`, 1000);
+                    setTimeout(() => window.location.href = `index.jsp`, 1000);
                 } else {
                     showMessage('Account created successfully! You can now login.', false);
                     setAuthMode(true);
@@ -357,7 +357,7 @@
             })
                 .then(res => {
                     if (res.ok) {
-                        window.location.href = `${CONTEXT_ROOT}/index.html`;
+                        window.location.href = `index.jsp`;
                     } else {
                         localStorage.removeItem('authToken');
                         localStorage.removeItem('currentUsername');
