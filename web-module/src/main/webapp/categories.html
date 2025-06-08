@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auction Categories</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+
+<div class="container mx-auto p-4">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800">Auction Categories</h1>
+        <div class="flex items-center space-x-4">
+            <span id="user-info-display" class="text-gray-700 hidden">
+                Logged in as <span id="current-username" class="font-bold"></span> (<span id="current-user-role" class="font-bold"></span>)
+            </span>
+            <a href="index.jsp" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">All Auctions</a>
+            <a href="login-register.html" id="login-link" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 hidden">Login / Register</a>
+            <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 hidden">Logout</button>
+        </div>
+    </div>
+
+    <div id="categories-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Categories will be loaded here dynamically -->
+        <div class="animate-pulse bg-white rounded-lg p-6">
+            <div class="h-6 bg-gray-300 rounded mb-4 w-3/4"></div>
+            <div class="h-4 bg-gray-300 rounded mb-3 w-full"></div>
+            <div class="h-4 bg-gray-300 rounded w-5/6"></div>
+        </div>
+        <div class="animate-pulse bg-white rounded-lg p-6">
+            <div class="h-6 bg-gray-300 rounded mb-4 w-3/4"></div>
+            <div class="h-4 bg-gray-300 rounded mb-3 w-full"></div>
+            <div class="h-4 bg-gray-300 rounded w-5/6"></div>
+        </div>
+        <div class="animate-pulse bg-white rounded-lg p-6">
+            <div class="h-6 bg-gray-300 rounded mb-4 w-3/4"></div>
+            <div class="h-4 bg-gray-300 rounded mb-3 w-full"></div>
+            <div class="h-4 bg-gray-300 rounded w-5/6"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const logoutBtn = document.getElementById('logout-btn');
+    const loginLink = document.getElementById('login-link');
+    const userInfoDisplay = document.getElementById('user-info-display');
+    const currentUsernameSpan = document.getElementById('current-username');
+    const currentUserRoleSpan = document.getElementById('current-user-role');
+    const categoriesContainer = document.getElementById('categories-container');
+
+    const CONTEXT_ROOT = '/auction-system';
+
+    // --- Utility Functions ---
+    function getAuthToken() { return localStorage.getItem('authToken'); }
+    function getCurrentUsername() { return localStorage.getItem('currentUsername'); }
+    function getCurrentUserRole() { return localStorage.getItem('currentUserRole'); }
+
+    // --- Authentication/Authorization Functions ---
+    function updateAuthUI() {
+        const token = getAuthToken();
+        const username = getCurrentUsername();
+        const role = getCurrentUserRole();
+
+        if (token && username && role) {
+            userInfoDisplay.classList.remove('hidden');
+            currentUsernameSpan.textContent = username;
+            currentUserRoleSpan.textContent = role;
+            loginLink.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+        } else {
+            userInfoDisplay.classList.add('hidden');
+            loginLink.classList.remove('hidden');
+            logoutBtn.classList.add('hidden');
+        }
+    }
+
+    async function handleLogout() {
+        const token = getAuthToken();
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${CONTEXT_ROOT}/api/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                console.log('Logged out successfully.');
+            } else {
+                console.log('Logout failed. Token might be invalid or expired on server.');
+            }
+        } catch (error) {
+            console.error('Network error during logout:', error);
+        } finally {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUsername');
+            localStorage.removeItem('currentUserRole');
+            // Redirect to login page after logout
+            window.location.href = `login-register.jsp`;
+        }
+    }
+
+    async function fetchCategories() {
+        try {
+            const response = await fetch(`${CONTEXT_ROOT}/api/auctions/categories`);
+
+            if (!response.ok) {
+                categoriesContainer.innerHTML = `
+                    <div class="col-span-full text-center p-8">
+                        <p class="text-red-500 font-medium">Failed to load categories: ${response.statusText}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const categories = await response.json();
+
+            if (categories.length === 0) {
+                categoriesContainer.innerHTML = `
+                    <div class="col-span-full text-center p-8">
+                        <p class="text-gray-500 italic">No categories available.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Clear loading placeholders
+            categoriesContainer.innerHTML = '';
+
+            // Render each category
+            categories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300';
+
+                categoryCard.innerHTML = `
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">${category.name}</h2>
+                    <p class="text-gray-600 mb-4">${category.description}</p>
+                    <a href="index.jsp?categoryId=${category.id}" class="text-blue-500 hover:text-blue-700 inline-flex items-center">
+                        View Auctions
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                `;
+
+                categoriesContainer.appendChild(categoryCard);
+            });
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            categoriesContainer.innerHTML = `
+                <div class="col-span-full text-center p-8">
+                    <p class="text-red-500 font-medium">Error loading categories: ${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        logoutBtn.addEventListener('click', handleLogout);
+
+        updateAuthUI(); // Update login/logout links
+        fetchCategories(); // Load categories
+    });
+</script>
+</body>
+</html>
