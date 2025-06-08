@@ -16,12 +16,12 @@
     <div class="container mx-auto px-4 relative z-10">
         <div class="flex flex-col md:flex-row items-center">
             <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
-              <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 relative group">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 relative group">
                   <span class="bg-clip-text text-transparent bg-gradient-to-b from-foreground via-primary to-foreground
                   bg-size-200 animate-gradient relative inline-block">Discover, Bid, <span class="text-primary font-extrabold">Win!</span></span>
-                  <span class="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white/20 to-transparent
+                    <span class="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white/20 to-transparent
                   opacity-0 group-hover:animate-shine"></span>
-              </h1>
+                </h1>
                 <p class="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
                     Find unique items and great deals in our online auction marketplace. Join thousands of satisfied bidders today!
                 </p>
@@ -38,10 +38,10 @@
                 <div class="bg-card p-8 rounded-xl shadow-xl relative z-10 transform md:scale-110 border border-border">
                     <div class="flex justify-between items-start mb-4">
                         <span class="text-sm font-medium text-primary">Featured Auction</span>
-<div class="status-active px-3 py-1 flex items-center space-x-1.5 rounded-full border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
-                           <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                           <span class="text-xs font-medium tracking-wider uppercase">Active</span>
-                       </div>
+                        <div class="status-active px-3 py-1 flex items-center space-x-1.5 rounded-full border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-xs font-medium tracking-wider uppercase">Active</span>
+                        </div>
                     </div>
 
                     <div class="mb-4 relative">
@@ -364,28 +364,28 @@
     .status-waiting { background-color: hsl(50, 100%, 50%, 0.5); color: hsl(37, 95%, 50%); }
     .status-ended { background-color: hsl(0, 84%, 60%, 0.5); color: hsl(0, 100%, 64%); }
 
-.hero-pattern {
-    background-color: hsl(240 10% 3.9%);
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232A2A3C' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
-    background-size: 100% 100%;
-    animation: heroPatternAnim 15s ease infinite alternate;
-    position: relative;
-}
+    .hero-pattern {
+        background-color: hsl(240 10% 3.9%);
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232A2A3C' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+        background-size: 100% 100%;
+        animation: heroPatternAnim 15s ease infinite alternate;
+        position: relative;
+    }
 
-@keyframes heroPatternAnim {
-    0% {
-        background-position: 0% 0%;
-        background-size: 100% 100%;
+    @keyframes heroPatternAnim {
+        0% {
+            background-position: 0% 0%;
+            background-size: 100% 100%;
+        }
+        50% {
+            background-position: 5% 5%;
+            background-size: 110% 110%;
+        }
+        100% {
+            background-position: 0% 0%;
+            background-size: 100% 100%;
+        }
     }
-    50% {
-        background-position: 5% 5%;
-        background-size: 110% 110%;
-    }
-    100% {
-        background-position: 0% 0%;
-        background-size: 100% 100%;
-    }
-}
     .gavel {
         animation: gavel 2s ease-in-out infinite;
         transform-origin: bottom right;
@@ -498,10 +498,10 @@
         height: 100%;
         transform: rotate(45deg);
         background: linear-gradient(
-            to right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0) 100%
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                rgba(255, 255, 255, 0) 100%
         );
         animation: shine 1.5s ease-in-out infinite;
     }
@@ -514,13 +514,13 @@
     .feature-card:hover .shine-effect {
         animation: shine 1.5s ease-in-out;
     }
-    
+
     /* New styles for feature icons and border treatment */
     .feature-card {
         position: relative;
         border-bottom: 4px solid transparent;
     }
-    
+
     .feature-card::after {
         content: '';
         position: absolute;
@@ -532,7 +532,7 @@
         background-size: 200% auto;
         animation: gradient 3s ease infinite;
     }
-    
+
     @keyframes gradient {
         0% {
             background-position: 0% 50%;
@@ -544,59 +544,59 @@
             background-position: 0% 50%;
         }
     }
-    
+
     /* Icon animations */
     .icon-pulse {
         animation: iconPulse 2s ease-in-out infinite;
     }
-    
+
     .icon-spin {
         animation: iconSpin 6s linear infinite;
     }
-    
+
     .icon-bounce {
         animation: iconBounce 2s ease-in-out infinite;
     }
-    
+
     .icon-float {
         animation: iconFloat 3s ease-in-out infinite;
     }
-    
+
     .icon-shake {
         animation: iconShake 2s ease-in-out infinite;
     }
-    
+
     .icon-glow {
         animation: iconGlow 2s ease-in-out infinite;
         filter: drop-shadow(0 0 2px var(--primary));
     }
-    
+
     @keyframes iconPulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.1); }
     }
-    
+
     @keyframes iconSpin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-    
+
     @keyframes iconBounce {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-10px); }
     }
-    
+
     @keyframes iconFloat {
         0%, 100% { transform: translateY(0) rotate(0); }
         50% { transform: translateY(-5px) rotate(2deg); }
     }
-    
+
     @keyframes iconShake {
         0%, 100% { transform: translateX(0); }
         10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
         20%, 40%, 60%, 80% { transform: translateX(2px); }
     }
-    
+
     @keyframes iconGlow {
         0%, 100% { filter: drop-shadow(0 0 2px var(--primary)); }
         50% { filter: drop-shadow(0 0 8px var(--primary)); }
