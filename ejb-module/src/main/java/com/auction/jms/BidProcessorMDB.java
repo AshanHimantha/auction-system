@@ -2,6 +2,7 @@ package com.auction.jms;
 
 import com.auction.ejb.AuctionInMemoryStorageSingleton;
 import com.auction.entity.Auction;
+import com.auction.entity.AuctionBidHistory; // NEW IMPORT
 import com.auction.entity.AuctionStatus;
 import jakarta.ejb.MessageDriven;
 import jakarta.ejb.ActivationConfigProperty;
@@ -16,6 +17,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.ejb.EJB;
 
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,9 +45,9 @@ public class BidProcessorMDB implements MessageListener {
         if (message instanceof MapMessage) {
             try {
                 MapMessage mapMessage = (MapMessage) message;
-                long auctionId = mapMessage.getLong("auctionId");
+                Long auctionId = mapMessage.getLong("auctionId");
                 double bidAmount = mapMessage.getDouble("bidAmount");
-                String bidderName = mapMessage.getString("bidderName"); // This is the bidder name from the *incoming* message
+                String bidderName = mapMessage.getString("bidderName");
 
                 LOGGER.log(Level.INFO, "DEBUG (BidProcessorMDB): Bidder Name extracted from incoming JMS message: " + bidderName);
 
@@ -55,19 +57,19 @@ public class BidProcessorMDB implements MessageListener {
                     return;
                 }
 
-                // Create a mutable copy to update
                 Auction auctionToUpdate = new Auction();
                 auctionToUpdate.setId(currentAuction.getId());
                 auctionToUpdate.setTitle(currentAuction.getTitle());
-                auctionToUpdate.setDescription(currentAuction.getDescription());
-                auctionToUpdate.setImageUrls(currentAuction.getImageUrls());
-                auctionToUpdate.setStartPrice(currentAuction.getStartPrice());
+                auctionToUpdate.setDescription(currentAuction.getDescription()); // Include new fields
+                auctionToUpdate.setImageUrls(currentAuction.getImageUrls());   // Include new fields
+                auctionToUpdate.setStartPrice(currentAuction.getStartPrice()); // Include new fields
                 auctionToUpdate.setCurrentBid(currentAuction.getCurrentBid());
-                auctionToUpdate.setWinningBidder(currentAuction.getWinningBidder()); // Copy existing bidder first
+                auctionToUpdate.setWinningBidder(currentAuction.getWinningBidder());
                 auctionToUpdate.setMinIncrement(currentAuction.getMinIncrement());
-                auctionToUpdate.setStartTime(currentAuction.getStartTime());
-                auctionToUpdate.setEndTime(currentAuction.getEndTime());
+                auctionToUpdate.setStartTime(currentAuction.getStartTime());   // Include new fields
+                auctionToUpdate.setEndTime(currentAuction.getEndTime());       // Include new fields
                 auctionToUpdate.setStatus(currentAuction.getStatus());
+                auctionToUpdate.setCategoryId(currentAuction.getCategoryId()); // NEW: Include categoryId
                 auctionToUpdate.setVersion(currentAuction.getVersion());
 
                 if (auctionToUpdate.getStatus() != AuctionStatus.ACTIVE) {
@@ -80,26 +82,44 @@ public class BidProcessorMDB implements MessageListener {
                     return;
                 }
 
-                // Update auction in in-memory storage (this is where winningBidder is set on the object)
                 auctionToUpdate.setCurrentBid(bidAmount);
-                auctionToUpdate.setWinningBidder(bidderName); // The bidderName is set on the object here
-                auctionStorage.addOrUpdateAuction(auctionToUpdate); // This commits the change to the map
+                auctionToUpdate.setWinningBidder(bidderName);
+                auctionStorage.addOrUpdateAuction(auctionToUpdate);
+
+                // Create the bid history entry with the current timestamp
+                AuctionBidHistory bidHistoryEntry = new AuctionBidHistory(auctionId, bidderName, bidAmount);
+                LocalDateTime bidTime = LocalDateTime.now();
+                bidHistoryEntry.setBidTime(bidTime);
+                auctionStorage.addBidToHistory(auctionId, bidHistoryEntry);
+
 
                 LOGGER.log(Level.INFO, "MDB: Successfully updated auction " + auctionId + " with new bid " + bidAmount + " by " + bidderName);
 
-                // Publish update to WebSocket clients via JMS Topic
                 MapMessage updateMessage = jmsContext.createMapMessage();
                 updateMessage.setLong("auctionId", auctionId);
                 updateMessage.setDouble("currentBid", auctionToUpdate.getCurrentBid());
 
-                // **** CRITICAL CHANGE HERE: Use the original 'bidderName' directly, ensuring it's non-null ****
-                String finalBidderForTopic = (bidderName != null && !bidderName.isEmpty()) ? bidderName : "None";
-                updateMessage.setString("winningBidder", finalBidderForTopic); // Use the direct, non-null string
-
+                String finalWinningBidder = (auctionToUpdate.getWinningBidder() != null && !auctionToUpdate.getWinningBidder().isEmpty())
+                        ? auctionToUpdate.getWinningBidder()
+                        : "None";
+                updateMessage.setString("winningBidder", finalWinningBidder);
                 updateMessage.setString("title", auctionToUpdate.getTitle());
+                updateMessage.setString("description", auctionToUpdate.getDescription()); // Include for updates if needed
+                updateMessage.setStringProperty("imageUrls", String.join(",", auctionToUpdate.getImageUrls())); // Send image URLs as comma-separated string
+                updateMessage.setDouble("startPrice", auctionToUpdate.getStartPrice());
+                updateMessage.setDouble("minIncrement", auctionToUpdate.getMinIncrement());
+                updateMessage.setString("startTime", auctionToUpdate.getStartTime().toString()); // Send as ISO string
+                updateMessage.setString("endTime", auctionToUpdate.getEndTime().toString()); // Send as ISO string
+                updateMessage.setLong("categoryId", auctionToUpdate.getCategoryId()); // NEW: Include category ID
+                updateMessage.setString("status", auctionToUpdate.getStatus().name()); // NEW: Include status
+
+                // Add bid history info to message
+                updateMessage.setString("lastBidderName", bidderName);
+                updateMessage.setDouble("lastBidAmount", bidAmount);
+                updateMessage.setString("lastBidTime", bidTime.toString());
 
                 jmsContext.createProducer().send(auctionUpdatesTopic, updateMessage);
-                LOGGER.log(Level.INFO, "MDB: Sent auction update to topic for auction " + auctionId + " with bidder: " + finalBidderForTopic); // Log the sent value
+                LOGGER.log(Level.INFO, "MDB: Sent auction update to topic for auction " + auctionId + " with bidder: " + finalWinningBidder);
 
             } catch (RuntimeException e) {
                 LOGGER.log(Level.SEVERE, "MDB: Error processing bid message (runtime exception): " + e.getMessage(), e);
@@ -109,7 +129,7 @@ public class BidProcessorMDB implements MessageListener {
                 throw new jakarta.ejb.EJBException("JMS Exception", e);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "MDB: Unexpected error during bid processing: " + e.getMessage(), e);
-
+                e.printStackTrace();
                 throw new jakarta.ejb.EJBException("Unexpected error", e);
             }
         } else {

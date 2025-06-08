@@ -1,8 +1,8 @@
 package com.auction.entity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime; // NEW IMPORT
-import java.util.Arrays; // NEW IMPORT
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -11,15 +11,16 @@ public class Auction implements Serializable {
 
     private Long id;
     private String title;
-    private String description; // NEW FIELD
-    private String[] imageUrls; // NEW FIELD: Array of image URLs (up to 3)
-    private double startPrice; // NEW FIELD: Original starting price
+    private String description;
+    private String[] imageUrls;
+    private double startPrice;
     private double currentBid;
     private String winningBidder;
     private double minIncrement;
-    private LocalDateTime startTime; // NEW FIELD
-    private LocalDateTime endTime; // NEW FIELD
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private AuctionStatus status;
+    private Long categoryId; // NEW FIELD: Link to category by ID
     private long version;
 
     public Auction() {
@@ -28,34 +29,35 @@ public class Auction implements Serializable {
         this.version = 0;
     }
 
-    // MODIFIED CONSTRUCTOR: Add new fields
-    public Auction(String title, String description, String[] imageUrls, double startPrice, double minIncrement, LocalDateTime startTime, LocalDateTime endTime) {
-        this(); // Call default constructor for ID generation
+    // MODIFIED CONSTRUCTOR: Add categoryId
+    public Auction(String title, String description, String[] imageUrls, double startPrice, double minIncrement, LocalDateTime startTime, LocalDateTime endTime, Long categoryId) {
+        this();
         this.title = title;
         this.description = description;
         this.imageUrls = imageUrls;
         this.startPrice = startPrice;
-        this.currentBid = startPrice; // Current bid starts at start price
+        this.currentBid = startPrice;
         this.minIncrement = minIncrement;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.categoryId = categoryId; // NEW
     }
 
-    // Getters and Setters for all fields (new and existing)
+    // Getters and Setters for all fields
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public String getDescription() { return description; } // NEW GETTER
-    public void setDescription(String description) { this.description = description; } // NEW SETTER
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String[] getImageUrls() { return imageUrls; } // NEW GETTER
-    public void setImageUrls(String[] imageUrls) { this.imageUrls = imageUrls; } // NEW SETTER
+    public String[] getImageUrls() { return imageUrls; }
+    public void setImageUrls(String[] imageUrls) { this.imageUrls = imageUrls; }
 
-    public double getStartPrice() { return startPrice; } // NEW GETTER
-    public void setStartPrice(double startPrice) { this.startPrice = startPrice; } // NEW SETTER
+    public double getStartPrice() { return startPrice; }
+    public void setStartPrice(double startPrice) { this.startPrice = startPrice; }
 
     public double getCurrentBid() { return currentBid; }
     public void setCurrentBid(double currentBid) { this.currentBid = currentBid; }
@@ -66,14 +68,17 @@ public class Auction implements Serializable {
     public double getMinIncrement() { return minIncrement; }
     public void setMinIncrement(double minIncrement) { this.minIncrement = minIncrement; }
 
-    public LocalDateTime getStartTime() { return startTime; } // NEW GETTER
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; } // NEW SETTER
+    public LocalDateTime getStartTime() { return startTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
 
-    public LocalDateTime getEndTime() { return endTime; } // NEW GETTER
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; } // NEW SETTER
+    public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
 
     public AuctionStatus getStatus() { return status; }
     public void setStatus(AuctionStatus status) { this.status = status; }
+
+    public Long getCategoryId() { return categoryId; } // NEW GETTER
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; } // NEW SETTER
 
     public long getVersion() { return version; }
     public void setVersion(long version) { this.version = version; }
@@ -106,6 +111,7 @@ public class Auction implements Serializable {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", status=" + status +
+                ", categoryId=" + categoryId +
                 ", version=" + version +
                 '}';
     }

@@ -27,7 +27,7 @@
                     Find unique items and great deals in our online auction marketplace. Join thousands of satisfied bidders today!
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="auctions.jsp" class="shadcn-button">
+                    <a href="auctions.html" class="shadcn-button">
                         Browse Auctions
                     </a>
                     <a href="login-register.html" class="shadcn-button shadcn-button-secondary">
@@ -202,7 +202,7 @@
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-3xl font-bold text-foreground">Featured Auctions</h2>
-            <a href="auctions.jsp" class="text-primary hover:underline font-medium flex items-center">
+            <a href="auctions.html" class="text-primary hover:underline font-medium flex items-center">
                 View All Auctions
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -372,7 +372,7 @@
             <a href="login-register.html" class="shadcn-button">
                 Sign Up Now
             </a>
-            <a href="auctions.jsp" class="shadcn-button shadcn-button-secondary">
+            <a href="auctions.html" class="shadcn-button shadcn-button-secondary">
                 Browse Auctions
             </a>
         </div>

@@ -138,6 +138,66 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     }
 
+    async function fetchRecentBids() {
+        const recentBidsTable = document.getElementById('recent-bids-table');
+
+        try {
+            const response = await fetch(`${CONTEXT_ROOT}/api/auctions/recent-bids`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const bids = await response.json();
+
+            if (bids.length === 0) {
+                recentBidsTable.innerHTML = `
+                <tr class="text-center">
+                    <td colspan="5" class="px-4 py-8 text-muted-foreground">
+                        No recent bids found
+                    </td>
+                </tr>
+            `;
+                return;
+            }
+
+            recentBidsTable.innerHTML = bids.map(bid => `
+            <tr class="hover:bg-secondary/30">
+                <td class="px-4 py-3">
+                    <a href="${CONTEXT_ROOT}/auction-details.html?id=${bid.auctionId}" class="hover:text-primary">
+                        ${bid.auctionTitle}
+                    </a>
+                </td>
+                <td class="px-4 py-3">${bid.bidderUsername}</td>
+                <td class="px-4 py-3 text-right font-medium">$${bid.amount.toFixed(2)}</td>
+                <td class="px-4 py-3 text-right text-muted-foreground">${new Date(bid.timestamp).toLocaleTimeString()}</td>
+                <td class="px-4 py-3 text-center">
+                    ${bid.winning ?
+                '<span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">Winning</span>' :
+                '<span class="bg-gray-500/20 text-gray-400 text-xs px-2 py-1 rounded">Outbid</span>'
+            }
+                </td>
+            </tr>
+        `).join('');
+        } catch (error) {
+            console.error('Error fetching recent bids:', error);
+            recentBidsTable.innerHTML = `
+            <tr class="text-center">
+                <td colspan="5" class="px-4 py-3 text-red-500">
+                    Failed to load recent bids: ${error.message}
+                </td>
+            </tr>
+        `;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Other initialization code...
+        fetchRecentBids();
+
+        // Refresh bid history periodically
+        setInterval(fetchRecentBids, 60000); // Update every minute
+    });
+
     // Initialize the featured auctions
     fetchFeaturedAuctions();
 

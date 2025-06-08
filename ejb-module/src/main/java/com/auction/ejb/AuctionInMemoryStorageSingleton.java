@@ -1,6 +1,8 @@
 package com.auction.ejb;
 
 import com.auction.entity.Auction;
+import com.auction.entity.AuctionBidHistory;
+import com.auction.entity.AuctionCategory;
 import com.auction.entity.AuctionStatus;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Lock;
@@ -8,38 +10,62 @@ import jakarta.ejb.LockType;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
-import java.time.LocalDateTime; // NEW IMPORT
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList; // NEW IMPORT for thread-safe list
 import java.util.concurrent.atomic.AtomicLong;
+// No longer need Collectors.toList() for initialization if using CopyOnWriteArrayList
 
 @Singleton
 @Startup
 public class AuctionInMemoryStorageSingleton {
 
     private Map<Long, Auction> auctions;
+    private Map<Long, AuctionCategory> categories;
+    private Map<Long, List<AuctionBidHistory>> bidHistories;
     private AtomicLong currentMaxId = new AtomicLong(0);
 
     @PostConstruct
     public void init() {
-        System.out.println("AuctionInMemoryStorageSingleton initialized. Populating initial auctions...");
+        System.out.println("AuctionInMemoryStorageSingleton initialized. Populating initial data...");
         auctions = new ConcurrentHashMap<>();
+        categories = new ConcurrentHashMap<>();
+        bidHistories = new ConcurrentHashMap<>();
 
-        // MODIFIED: Create auctions with new fields
-        Auction a1 = new Auction("Vintage Watch", "A classic timepiece from the 1950s.", new String[]{"https://th.bing.com/th/id/OIP.YyVBrBigKQMSbIQUZBaMSgHaJQ?rs=1&pid=ImgDetMain", "https://th.bing.com/th/id/OIP.v4U30tNNeO39lKkQeKGUqAHaJQ?pid=ImgDet&w=474&h=592&rs=1"}, 100.00, 5.00, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(5));
-        a1.setWinningBidder("NoBidder"); // No bids yet
+        // --- Populate Categories ---
+        AuctionCategory catElectronics = new AuctionCategory("Electronics", "Gadgets, devices, and tech items.");
+        AuctionCategory catCollectibles = new AuctionCategory("Collectibles", "Rare items, coins, stamps, and memorabilia.");
+        AuctionCategory catArt = new AuctionCategory("Art", "Paintings, sculptures, and creative works.");
+        categories.put(catElectronics.getId(), catElectronics);
+        categories.put(catCollectibles.getId(), catCollectibles);
+        categories.put(catArt.getId(), catArt);
+        System.out.println("Populated " + categories.size() + " categories.");
+
+        // --- Populate Auctions with Categories ---
+        // Ensure category IDs are correct for initial auctions
+        Auction a1 = new Auction("Vintage Watch", "A classic timepiece from the 1950s.", new String[]{"https://via.placeholder.com/150/0000FF/FFFFFF?text=Watch1", "https://via.placeholder.com/150/0000AA/FFFFFF?text=Watch2"}, 100.00, 5.00, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusHours(1), catCollectibles.getId());
+        a1.setWinningBidder("system_user");
         auctions.put(a1.getId(), a1);
+        bidHistories.put(a1.getId(), new CopyOnWriteArrayList<>()); // Initialize with CopyOnWriteArrayList
 
-        Auction a2 = new Auction("Rare Comic Book", "First edition of a highly sought-after superhero comic.", new String[]{"https://images-geeknative-com.exactdn.com/wp-content/uploads/2020/02/18002335/Comics-Incredible-Hulk-181.jpg?strip=all&lossy=1&w=1920&ssl=1","https://images-geeknative-com.exactdn.com/wp-content/uploads/2020/02/18002335/Comics-Incredible-Hulk-181.jpg?strip=all&lossy=1&w=1920&ssl=1"}, 50.00, 2.00, LocalDateTime.now().minusHours(12), LocalDateTime.now().plusDays(2));
-        a2.setWinningBidder("NoBidder");
+        Auction a2 = new Auction("Rare Comic Book", "First edition of a highly sought-after superhero comic.", new String[]{"https://via.placeholder.com/150/FF0000/000000?text=Comic1"}, 50.00, 2.00, LocalDateTime.now().minusHours(12), LocalDateTime.now().minusHours(1), catCollectibles.getId());
+        a2.setStatus(AuctionStatus.CLOSED);
+        a2.setWinningBidder("UserEnded");
         auctions.put(a2.getId(), a2);
+        bidHistories.put(a2.getId(), new CopyOnWriteArrayList<>(List.of(new AuctionBidHistory(a2.getId(), "InitialBidder", 50.00), new AuctionBidHistory(a2.getId(), "UserEnded", 52.00)))); // Example history with CopyOnWriteArrayList
 
-        Auction a3 = new Auction("Old Painting", "Abstract art by a renowned local artist.", new String[]{"https://th.bing.com/th/id/R.ad76f044acd53da43c459dc1af958f9c?rik=4UoSDv9wFjaJ3A&pid=ImgRaw&r=0", "https://cdn.pixabay.com/photo/2016/08/07/09/17/old-1575887_960_720.jpg", "https://th.bing.com/th/id/OIP.DA9XmE8NmZhTFpItnTT1XgHaKU?w=646&h=900&rs=1&pid=ImgDetMain"}, 200.00, 10.00, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(7)); // Auction starts in future
-        a3.setWinningBidder("NoBidder");
+        Auction a3 = new Auction("Old Painting", "Abstract art by a renowned local artist.", new String[]{"https://via.placeholder.com/150/00FF00/000000?text=Painting1", "https://via.placeholder.com/150/00AA00/000000?text=Painting2", "https://via.placeholder.com/150/005500/000000?text=Painting3"}, 200.00, 10.00, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(7), catArt.getId());
         auctions.put(a3.getId(), a3);
+        bidHistories.put(a3.getId(), new CopyOnWriteArrayList<>());
+
+        Auction a4 = new Auction("Rare Stamp Collection", "Complete set of vintage stamps.", new String[]{"https://via.placeholder.com/150/FFFF00/000000?text=Stamp1"}, 150.00, 5.00, LocalDateTime.now().minusDays(3), LocalDateTime.now().plusDays(10), catCollectibles.getId());
+        auctions.put(a4.getId(), a4);
+        bidHistories.put(a4.getId(), new CopyOnWriteArrayList<>());
+
 
         auctions.keySet().forEach(id -> {
             while (currentMaxId.get() < id) {
@@ -47,20 +73,28 @@ public class AuctionInMemoryStorageSingleton {
             }
         });
 
-        System.out.println("Populated " + auctions.size() + " initial auctions.");
+        System.out.println("Populated " + auctions.size() + " auctions.");
     }
 
     @Lock(LockType.READ)
     public Auction getAuction(Long id) {
-        // In a real system, you might filter by active status or time here for UI.
         return auctions.get(id);
     }
 
+    // Renamed from getAllActiveAuctions to getAllAuctions to match AuctionManager interface
     @Lock(LockType.READ)
-    public Collection<Auction> getAllActiveAuctions() {
-        // MODIFIED: Filter by active status and within start/end times
-        LocalDateTime now = LocalDateTime.now();
-        return new ArrayList<>(auctions.values()); // Convert to list
+    public Collection<Auction> getAllAuctions() {
+        return Collections.unmodifiableCollection(auctions.values());
+    }
+
+    @Lock(LockType.READ)
+    public Collection<AuctionCategory> getAllCategories() {
+        return Collections.unmodifiableCollection(categories.values());
+    }
+
+    @Lock(LockType.READ)
+    public AuctionCategory getCategoryById(Long id) {
+        return categories.get(id);
     }
 
     @Lock(LockType.WRITE)
@@ -71,11 +105,27 @@ public class AuctionInMemoryStorageSingleton {
         }
         auction.incrementVersion();
         auctions.put(auction.getId(), auction);
+        // Initialize history list if it's a new auction with a thread-safe list
+        bidHistories.computeIfAbsent(auction.getId(), k -> new CopyOnWriteArrayList<>());
         System.out.println("Added/Updated auction " + auction.getId() + " in in-memory storage. New version: " + auction.getVersion());
     }
 
     @Lock(LockType.WRITE)
+    public void addBidToHistory(Long auctionId, AuctionBidHistory bid) {
+        // Ensure the list is a CopyOnWriteArrayList or similar thread-safe list
+        bidHistories.computeIfAbsent(auctionId, k -> new CopyOnWriteArrayList<>())
+                .add(bid);
+        System.out.println("Added bid to history for auction " + auctionId + ": " + bid.getBidAmount());
+    }
+
+    @Lock(LockType.READ)
+    public List<AuctionBidHistory> getBidHistory(Long auctionId) {
+        return Collections.unmodifiableList(bidHistories.getOrDefault(auctionId, List.of()));
+    }
+
+    @Lock(LockType.WRITE)
     public boolean removeAuction(Long id) {
+        bidHistories.remove(id);
         return auctions.remove(id) != null;
     }
 }

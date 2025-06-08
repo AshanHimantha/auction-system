@@ -14,15 +14,15 @@
 
             <nav class="hidden md:flex space-x-8">
                 <a href="index.jsp" class="text-primary font-medium">Home</a>
-                <a href="auctions.jsp" class="text-muted-foreground hover:text-primary transition duration-300">Auctions</a>
+                <a href="auctions.html" class="text-muted-foreground hover:text-primary transition duration-300">Auctions</a>
                 <a href="#" class="text-muted-foreground hover:text-primary transition duration-300">Categories</a>
                 <a href="#how-it-works" class="text-muted-foreground hover:text-primary transition duration-300">How It Works</a>
                 <a href="#contact" class="text-muted-foreground hover:text-primary transition duration-300">Contact</a>
             </nav>
 
             <div class="flex items-center space-x-4">
-                <a href="login-register.jsp" class="md:block shadcn-button" id="login-button">Login</a>
-                <a href="create-auction.jsp" id="create-auction-link-nav" class="bg-muted hover:bg-accent text-foreground font-medium py-2 px-4 rounded transition duration-300 hidden">Create Auction</a>
+                <a href="login-register.html" class="md:block shadcn-button" id="login-button">Login</a>
+                <a href="create-auction.html" id="create-auction-link-nav" class="bg-muted hover:bg-accent text-foreground font-medium py-2 px-4 rounded transition duration-300 hidden">Create Auction</a>
                 <div id="user-profile" class="hidden">
                     <span id="username-display" class="text-muted-foreground mr-2"></span>
                     <button id="logout-button" class="text-red-400 hover:text-red-300">Logout</button>

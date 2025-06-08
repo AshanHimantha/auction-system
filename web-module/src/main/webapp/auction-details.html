@@ -25,6 +25,11 @@
     .status-waiting { background-color: #fffbeb; color: #b45309; } /* amber-100 / amber-800 */
     .status-ended { background-color: #fee2e2; color: #991b1b; } /* red-100 / red-800 */
     .countdown { font-family: monospace; font-weight: bold; }
+    /* New styles for bid history */
+    .bid-history-container { max-height: 300px; overflow-y: auto; }
+    .bid-history-item { transition: background-color 1s ease; }
+    .bid-history-item.new-bid { background-color: rgba(147, 197, 253, 0.3); } /* blue-200 with opacity */
+    .bid-history-empty { padding: 1rem; text-align: center; color: #6b7280; font-style: italic; }
   </style>
 </head>
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
@@ -58,6 +63,7 @@
         <p class="text-gray-600 mb-2">Current Bid: <span class="font-bold text-blue-600 text-2xl" id="auction-details-current-bid"></span></p>
         <p class="text-gray-600 mb-4">Winning Bidder: <span class="font-medium text-gray-700" id="auction-details-winning-bidder"></span></p>
         <p class="text-gray-500 text-sm">Min Increment: <span id="auction-details-min-increment"></span></p>
+        <p class="text-gray-600 mt-2">Category: <a href="#" class="text-blue-500 hover:underline" id="auction-details-category"></a></p>
       </div>
       <div>
         <p class="text-gray-500 text-sm">Starts: <span id="auction-details-start-time"></span></p>
@@ -74,6 +80,16 @@
     </form>
     <p id="login-to-bid-message" class="text-gray-600 text-center mt-4 hidden">Please <a href="login-register.html" class="text-blue-500 hover:underline">login</a> to place a bid.</p>
     <p id="bid-disabled-message" class="text-gray-600 text-center mt-4 hidden">Bidding is not possible for this auction (ended, not started, or closed).</p>
+  </div>
+
+  <!-- New Bid History Section -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Bid History</h2>
+    <div id="bid-history-container" class="bid-history-container">
+      <div id="bid-history-list" class="divide-y divide-gray-200">
+        <p class="bid-history-empty">No bids have been placed yet.</p>
+      </div>
+    </div>
   </div>
 
   <div class="bg-white rounded-lg shadow-md p-6">
@@ -104,6 +120,7 @@
   const auctionDetailsStartTime = document.getElementById('auction-details-start-time');
   const auctionDetailsEndTime = document.getElementById('auction-details-end-time');
   const auctionDetailsCountdown = document.getElementById('auction-details-countdown');
+  const auctionDetailsCategory = document.getElementById('auction-details-category'); // Add this line
 
   const bidForm = document.getElementById('bid-form');
   const bidAmountInput = document.getElementById('bid-amount-input');
@@ -113,10 +130,14 @@
 
   const auctionLog = document.getElementById('auction-log');
 
+  // New bid history elements
+  const bidHistoryList = document.getElementById('bid-history-list');
+
   let websocket;
   let auctionId = null; // Store the current auction ID from URL
   let currentAuctionDetails = null; // Store fetched auction details
   let countdownInterval = null; // Store countdown interval ID
+  let bidHistory = []; // Array to store bid history
 
   const CONTEXT_ROOT = '/auction-system';
 
@@ -182,7 +203,7 @@
       localStorage.removeItem('currentUsername');
       localStorage.removeItem('currentUserRole');
       // Redirect to login page after logout
-      window.location.href = `${CONTEXT_ROOT}/login-register.html`;
+      window.location.href = `login-register.jsp`;
     }
   }
 
@@ -205,6 +226,11 @@
         if (data.auctionId == auctionId && data.currentBid !== undefined && data.winningBidder) { // Only update if it's THIS auction
           updateAuctionDetails(data);
           logMessage(`Auction ${data.title} (#${data.auctionId}): New bid $${data.currentBid.toFixed(2)} by ${data.winningBidder}`, 'text-blue-600');
+
+          // Update bid history if we have last bid information
+          if (data.lastBid) {
+            addBidToHistory(data.lastBid);
+          }
         }
       } catch (e) {
         logMessage(`WebSocket Error: ${e.message}. Raw message: ${event.data}`, 'text-red-500');
@@ -298,9 +324,32 @@
       updateAuctionDisplay(currentAuctionDetails);
       setupCountdown(currentAuctionDetails.endTime);
       updateBidFormVisibility(); // Update bid form based on status/login
+      fetchBidHistory(); // Fetch bid history
     } catch (error) {
       logMessage(`Failed to load auction details: ${error.message}`, 'text-red-700');
       console.error('Fetch auction details error:', error);
+    }
+  }
+
+  async function fetchBidHistory() {
+    const token = getAuthToken();
+    try {
+      let headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${CONTEXT_ROOT}/api/auctions/${auctionId}/history`, { headers });
+      if (!response.ok) {
+        logMessage(`Error loading bid history: ${response.statusText}`, 'text-red-500');
+        return;
+      }
+
+      bidHistory = await response.json();
+      updateBidHistoryDisplay(bidHistory);
+    } catch (error) {
+      logMessage(`Failed to load bid history: ${error.message}`, 'text-red-500');
+      console.error('Fetch bid history error:', error);
     }
   }
 
@@ -321,12 +370,48 @@
     auctionDetailsStartTime.textContent = new Date(auction.startTime).toLocaleString();
     auctionDetailsEndTime.textContent = new Date(auction.endTime).toLocaleString();
 
+    // Fix category display by using categoryId
+    if (auction.categoryId) {
+      // Set href to navigate to index.jsp filtered by this category
+      auctionDetailsCategory.href = `index.jsp?categoryId=${auction.categoryId}`;
+
+      // Fetch the category name if we have the ID
+      fetchCategoryName(auction.categoryId).then(categoryName => {
+        auctionDetailsCategory.textContent = categoryName;
+      }).catch(error => {
+        console.error("Error fetching category name:", error);
+        auctionDetailsCategory.textContent = "Uncategorized";
+      });
+    } else {
+      auctionDetailsCategory.textContent = 'Uncategorized';
+      auctionDetailsCategory.href = 'index.jsp';
+    }
+
     const status = getAuctionStatus(auction);
     auctionDetailsStatus.textContent = status.text;
     auctionDetailsStatus.className = `auction-status ${status.class}`; // Apply class for styling
 
     // Set min bid for input field
     bidAmountInput.min = (auction.currentBid + auction.minIncrement).toFixed(2);
+  }
+
+  // New helper function to fetch category name by ID
+  async function fetchCategoryName(categoryId) {
+    try {
+      // First try to use the /api/auctions/categories endpoint to get all categories
+      const response = await fetch(`${CONTEXT_ROOT}/api/auctions/categories`);
+      if (!response.ok) {
+        return "Unknown Category";
+      }
+
+      const categories = await response.json();
+      const category = categories.find(cat => cat.id === categoryId);
+
+      return category ? category.name : "Unknown Category";
+    } catch (error) {
+      console.error("Error fetching category name:", error);
+      return "Unknown Category";
+    }
   }
 
   // Called by WebSocket on real-time update
@@ -337,6 +422,54 @@
     bidAmountInput.min = (data.currentBid + (currentAuctionDetails ? currentAuctionDetails.minIncrement : 0)).toFixed(2);
     currentAuctionDetails.currentBid = data.currentBid; // Update stored data
     currentAuctionDetails.winningBidder = data.winningBidder; // Update stored data
+  }
+
+  // New function to add a bid to history and update the UI
+  function addBidToHistory(bid) {
+    // Add to our in-memory array of bids
+    bidHistory.unshift(bid); // Add to beginning of array
+
+    // Update the UI
+    updateBidHistoryDisplay();
+
+    // Highlight the new bid
+    const firstItem = document.querySelector('.bid-history-item');
+    if (firstItem) {
+      firstItem.classList.add('new-bid');
+      // Remove highlight after animation completes
+      setTimeout(() => {
+        firstItem.classList.remove('new-bid');
+      }, 2000);
+    }
+  }
+
+  // Function to update the bid history display
+  function updateBidHistoryDisplay() {
+    if (!bidHistory || bidHistory.length === 0) {
+      bidHistoryList.innerHTML = '<p class="bid-history-empty">No bids have been placed yet.</p>';
+      return;
+    }
+
+    bidHistoryList.innerHTML = '';
+
+    // Sort bids by time, most recent first
+    const sortedBids = [...bidHistory].sort((a, b) => {
+      return new Date(b.bidTime) - new Date(a.bidTime);
+    });
+
+    sortedBids.forEach(bid => {
+      const bidTime = new Date(bid.bidTime);
+      const bidItem = document.createElement('div');
+      bidItem.className = 'bid-history-item p-3';
+      bidItem.innerHTML = `
+        <div class="flex justify-between">
+          <div class="font-medium">${bid.bidderName}</div>
+          <div class="text-green-600 font-bold">$${bid.bidAmount.toFixed(2)}</div>
+        </div>
+        <div class="text-gray-500 text-sm">${bidTime.toLocaleString()}</div>
+      `;
+      bidHistoryList.appendChild(bidItem);
+    });
   }
 
   function updateBidFormVisibility() {
@@ -350,69 +483,65 @@
     if (!status) return; // No auction details yet
 
     if (!token) {
+      // User not logged in, show login message
       loginToBidMessage.classList.remove('hidden');
     } else if (!status.canBid) {
+      // Auction not active (waiting or ended)
       bidDisabledMessage.classList.remove('hidden');
     } else {
+      // Auction active and user logged in, show bid form
       bidForm.classList.remove('hidden');
+      bidAmountInput.value = ''; // Clear any previous value
+      bidAmountInput.min = (currentAuctionDetails.currentBid + currentAuctionDetails.minIncrement).toFixed(2);
+      bidAmountInput.placeholder = `Min bid: $${bidAmountInput.min}`;
     }
   }
 
   async function handleBidSubmission(event) {
     event.preventDefault();
-    const token = getAuthToken();
-    const bidAmount = bidAmountInput.value;
+    bidMessage.textContent = ''; // Clear any previous message
 
+    const token = getAuthToken();
     if (!token) {
       bidMessage.textContent = 'You must be logged in to place a bid.';
-      bidMessage.className = 'text-red-500 text-xs italic mt-2';
-      return;
-    }
-    if (bidAmount === '' || isNaN(parseFloat(bidAmount))) {
-      bidMessage.textContent = 'Please enter a valid bid amount.';
-      bidMessage.className = 'text-red-500 text-xs italic mt-2';
-      return;
-    }
-    if (!currentAuctionDetails || !getAuctionStatus(currentAuctionDetails).canBid) {
-      bidMessage.textContent = 'Bidding is not allowed for this auction right now.';
-      bidMessage.className = 'text-red-500 text-xs italic mt-2';
       return;
     }
 
-    const apiUrl = `${CONTEXT_ROOT}/api/auctions/${auctionId}/bid`;
+    const bidAmount = parseFloat(bidAmountInput.value);
+    const minAllowedBid = parseFloat((currentAuctionDetails.currentBid + currentAuctionDetails.minIncrement).toFixed(2));
+
+    if (bidAmount < minAllowedBid) {
+      bidMessage.textContent = `Bid must be at least $${minAllowedBid.toFixed(2)}.`;
+      return;
+    }
 
     try {
-      const response = await fetch(apiUrl, {
+      // Changed to use URLSearchParams instead of FormData
+      const params = new URLSearchParams();
+      params.append('bidAmount', bidAmount);
+
+      const response = await fetch(`${CONTEXT_ROOT}/api/auctions/${auctionId}/bid`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/x-www-form-urlencoded' // Explicitly set content type
         },
-        body: new URLSearchParams({
-          bidAmount: parseFloat(bidAmount)
-        })
+        body: params
       });
 
-      const message = await response.text();
-      if (response.ok || response.status === 202) {
-        bidMessage.textContent = `Bid received: ${message}`;
-        bidMessage.className = 'text-green-600 text-xs italic mt-2';
-        bidAmountInput.value = ''; // Clear input
-      } else if (response.status === 401 || response.status === 403) {
-        bidMessage.textContent = `Authorization failed: ${message}. Please re-login.`;
-        bidMessage.className = 'text-red-500 text-xs italic mt-2';
-        handleLogout(); // Redirect to login
+      if (response.ok) {
+        const result = await response.text();
+        bidAmountInput.value = ''; // Clear input field after successful bid
+        logMessage(`Bid placed successfully: ${result}`, 'text-green-600');
       } else {
-        bidMessage.textContent = `Error bidding: ${message}`;
-        bidMessage.className = 'text-red-500 text-xs italic mt-2';
+        logMessage(`Bid failed: ${response.statusText}`, 'text-red-500');
+        bidMessage.textContent = `Error placing bid: ${response.statusText}`;
       }
     } catch (error) {
-      bidMessage.textContent = `Network error: ${error.message}`;
-      bidMessage.className = 'text-red-700 text-xs italic mt-2';
-      console.error('Bid submission error:', error);
+      logMessage(`Bid error: ${error.message}`, 'text-red-700');
+      bidMessage.textContent = `Error placing bid: ${error.message}`;
     }
   }
-
 
   // --- Initialization ---
   document.addEventListener('DOMContentLoaded', () => {
