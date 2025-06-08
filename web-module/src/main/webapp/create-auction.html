@@ -37,6 +37,16 @@
                 <label for="auction-description" class="block text-gray-700 text-sm font-bold mb-2">Description:</label>
                 <textarea id="auction-description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3" required></textarea>
             </div>
+            <!-- New Category Dropdown with fixed options -->
+            <div class="mb-4">
+                <label for="auction-category" class="block text-gray-700 text-sm font-bold mb-2">Category:</label>
+                <select id="auction-category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                    <option value="">-- Select a Category --</option>
+                    <option value="1">Electronics</option>
+                    <option value="2">Collectibles</option>
+                    <option value="3">Art</option>
+                </select>
+            </div>
             <div class="mb-4">
                 <label for="auction-image-urls" class="block text-gray-700 text-sm font-bold mb-2">Image URLs (comma-separated, max 3):</label>
                 <input type="text" id="auction-image-urls" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., url1, url2">
@@ -125,7 +135,6 @@
         document.getElementById('current-user-role').textContent = role;
         logMessage(`Logged in as ${username} (${role}). Ready to create auctions.`, 'text-green-600');
 
-
         // Set min datetime for start and end times to now
         const now = new Date();
         const year = now.getFullYear();
@@ -191,13 +200,14 @@
 
         const title = document.getElementById('auction-title').value;
         const description = document.getElementById('auction-description').value;
+        const categoryId = document.getElementById('auction-category').value;
         const imageUrls = document.getElementById('auction-image-urls').value.split(',').map(url => url.trim()).filter(url => url.length > 0).slice(0, 3);
         const startPrice = parseFloat(document.getElementById('auction-start-price').value);
         const minIncrement = parseFloat(document.getElementById('auction-min-increment').value);
         const startTime = document.getElementById('auction-start-time').value;
         const endTime = document.getElementById('auction-end-time').value;
 
-        if (isNaN(startPrice) || isNaN(minIncrement) || !title || !description || !startTime || !endTime) {
+        if (isNaN(startPrice) || isNaN(minIncrement) || !title || !description || !categoryId || !startTime || !endTime) {
             createAuctionMessage.textContent = 'Please fill all required fields correctly.';
             createAuctionMessage.className = 'text-red-500 text-xs italic mt-4';
             return;
@@ -213,6 +223,7 @@
                 body: JSON.stringify({
                     title,
                     description,
+                    categoryId,
                     imageUrls,
                     startPrice,
                     minIncrement,
@@ -221,7 +232,17 @@
                 })
             });
 
-            const data = await response.json();
+            // Check if response is JSON before trying to parse it
+            const contentType = response.headers.get("content-type");
+            let data;
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                // If not JSON, get as text and create a simple object
+                const text = await response.text();
+                data = { message: text };
+            }
+
             if (response.ok || response.status === 201) {
                 createAuctionMessage.textContent = `Auction created successfully! ID: ${data.id}`;
                 createAuctionMessage.className = 'text-green-600 text-xs italic mt-4';

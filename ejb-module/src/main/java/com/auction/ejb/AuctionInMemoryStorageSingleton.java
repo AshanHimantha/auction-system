@@ -52,7 +52,7 @@ public class AuctionInMemoryStorageSingleton {
                         "https://vintagewatchspecialist.com/cdn/shop/files/record-wwii-british-military-issued-dirty-dozen-wristwatch-1944-dirty-dirty-dozen-dozen-collection-watch-dirty-dozen-watch-watches-vintage-watch-496_2400x.jpg?v=1724341251",
                 "https://vintagewatchspecialist.com/cdn/shop/files/record-wwii-british-military-issued-dirty-dozen-wristwatch-1944-dirty-dirty-dozen-dozen-collection-watch-dirty-dozen-watch-watches-vintage-watch-738_2400x.jpg?v=1724341258"
                 }, 100.00, 5.00, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusHours(1), catCollectibles.getId());
-        a1.setWinningBidder("system_user");
+        a1.setWinningBidder("No Bids Yet");
         auctions.put(a1.getId(), a1);
         bidHistories.put(a1.getId(), new CopyOnWriteArrayList<>()); // Initialize with CopyOnWriteArrayList
 
@@ -61,7 +61,7 @@ public class AuctionInMemoryStorageSingleton {
                 "https://www.comicbookdaily.com/wp-content/uploads/2020/11/tec-27-480x734.jpg",
                         "https://comicvine.gamespot.com/a/uploads/scale_small/0/9116/1206901-detectivecomics27.jpg"}, 50.00, 2.00, LocalDateTime.now().minusHours(12), LocalDateTime.now().minusHours(1), catCollectibles.getId());
         a2.setStatus(AuctionStatus.CLOSED);
-        a2.setWinningBidder("UserEnded");
+        a2.setWinningBidder("Ashan xD");
         auctions.put(a2.getId(), a2);
         bidHistories.put(a2.getId(), new CopyOnWriteArrayList<>(List.of(new AuctionBidHistory(a2.getId(), "InitialBidder", 50.00), new AuctionBidHistory(a2.getId(), "UserEnded", 52.00)))); // Example history with CopyOnWriteArrayList
 

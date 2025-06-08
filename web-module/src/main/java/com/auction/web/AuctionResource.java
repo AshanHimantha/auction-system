@@ -8,6 +8,7 @@ import com.auction.entity.AuctionBidHistory; // NEW IMPORT: To return bid histor
 import com.auction.ejb.AuctionInMemoryStorageSingleton; // Add this import for direct access to bid history
 import jakarta.ejb.EJB;
 import jakarta.json.Json;
+import jakarta.json.JsonNumber;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -115,7 +116,19 @@ public class AuctionResource {
             double minIncrement = auctionData.getJsonNumber("minIncrement").doubleValue();
             LocalDateTime startTime = LocalDateTime.parse(auctionData.getString("startTime"));
             LocalDateTime endTime = LocalDateTime.parse(auctionData.getString("endTime"));
-            Long categoryId = auctionData.getJsonNumber("categoryId").longValue(); // NEW: Get category ID
+
+            // NEW: Handle categoryId that might be sent as either a string or a number
+            Long categoryId;
+            if (auctionData.containsKey("categoryId")) {
+                if (auctionData.get("categoryId") instanceof JsonNumber) {
+                    categoryId = auctionData.getJsonNumber("categoryId").longValue();
+                } else {
+                    // Handle the case where categoryId is sent as a string
+                    categoryId = Long.parseLong(auctionData.getString("categoryId"));
+                }
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Category ID is required").build();
+            }
 
             // MODIFIED: Pass categoryId to createAuction
             Auction newAuction = auctionManager.createAuction(title, description, imageUrls, startPrice, minIncrement, startTime, endTime, categoryId);
