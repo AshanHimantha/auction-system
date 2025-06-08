@@ -1,0 +1,171 @@
+/* Notification Container Styling */
+.notification-container {
+    position: fixed;
+    top: 80px; /* Position below header */
+    right: 20px;
+    width: 350px;
+    max-width: 90%;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Individual Notification Styling */
+.notification {
+    background-color: hsl(240 3.7% 15.9%);
+    border-left: 4px solid;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Notification Type Colors */
+.notification-info {
+    border-color: hsl(220, 100%, 60%);
+}
+
+.notification-success {
+    border-color: hsl(142, 76%, 36%);
+}
+
+.notification-error {
+    border-color: hsl(0, 84%, 60%);
+}
+
+.notification-warning {
+    border-color: hsl(38, 92%, 50%);
+}
+
+/* Notification text type colors */
+.notification-text-info {
+    color: hsl(220, 100%, 60%);
+}
+
+.notification-text-success {
+    color: hsl(142, 76%, 36%);
+}
+
+.notification-text-error {
+    color: hsl(0, 84%, 60%);
+}
+
+.notification-text-warning {
+    color: hsl(38, 92%, 50%);
+}
+
+/* Notification Components */
+.notification-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-info .notification-icon {
+    color: hsl(220, 100%, 60%);
+}
+
+.notification-success .notification-icon {
+    color: hsl(142, 76%, 36%);
+}
+
+.notification-error .notification-icon {
+    color: hsl(0, 84%, 60%);
+}
+
+.notification-warning .notification-icon {
+    color: hsl(38, 92%, 50%);
+}
+
+.notification-content {
+    flex-grow: 1;
+}
+
+.notification-message {
+    color: hsl(0 0% 98%);
+    margin-bottom: 4px;
+    font-size: 0.9375rem;
+}
+
+.notification-timestamp {
+    color: hsl(240 5% 64.9%);
+    font-size: 0.75rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: hsl(240 5% 64.9%);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+    background-color: hsla(0, 0%, 100%, 0.1);
+    color: hsl(0 0% 98%);
+}
+
+/* Animation for entry/exit */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+}
+
+/* Test button for notifications */
+.notification-test-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 900;
+    padding: 8px 16px;
+    background-color: hsl(240 5.9% 90%);
+    color: hsl(240 5.9% 10%);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.notification-test-button:hover {
+    background-color: hsl(240 5.9% 95%);
+}

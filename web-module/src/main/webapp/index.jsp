@@ -4,6 +4,7 @@
 <head>
     <title>AuctionHub - Online Auction System</title>
     <jsp:include page="includes/head.jsp" />
+    <link href="css/notification.css" rel="stylesheet" />
 
 </head>
 <body class="bg-background text-foreground font-sans leading-normal tracking-normal">
@@ -607,5 +608,7 @@
 <!-- Replace the existing script block with these script tags -->
 <script src="js/header.js"></script>
 <script src="js/homepage.js"></script>
+<script src="js/websocket-client.js"></script>
+<script src="js/notification-demo.js"></script>
 </body>
 </html>
