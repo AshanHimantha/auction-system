@@ -1,4 +1,3 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en" class="dark">
@@ -77,121 +76,52 @@
 <section id="how-it-works" class="py-16 relative bg-gradient-to-b from-background to-card">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-center text-foreground mb-12">How It Works</h2>
+        <p class="text-center text-muted-foreground max-w-3xl mx-auto mb-12">
+            Getting started is simple. Follow these four easy steps to begin your auction journey.</p>
 
-        <style>
-            .feature-card {
-                position: relative;
-                transition: all 0.4s ease;
-                overflow: hidden;
-                z-index: 1;
-                border-bottom: 3px solid transparent;
-                background-clip: padding-box;
-            }
-
-            /* Gradient bottom border animation */
-            .feature-card::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                height: 3px;
-                background: linear-gradient(
-                        90deg,
-                        hsl(240 5.9% 90%),
-                        hsl(0, 0%, 21%),
-                        hsl(0, 0%, 38%),
-                        hsl(240 5% 64.9%),
-                        hsl(240 5.9% 90%)
-                );
-                background-size: 300% 100%;
-                z-index: 1;
-                animation: gradientBorder 6s ease infinite;
-            }
-
-            /* Shine effect only on hover */
-            .feature-card::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 80%;
-                height: 100%;
-                background: linear-gradient(
-                        90deg,
-                        transparent,
-                        rgba(255, 255, 255, 0.2),
-                        transparent
-                );
-                z-index: 0;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            }
-
-            .feature-card:hover::after {
-                opacity: 1;
-                animation: shine 0.8s forwards;
-            }
-
-            .feature-card:hover {
-                transform: translateY(-10px);
-                box-shadow: 0 20px 30px -15px rgba(0, 0, 0, 0.3);
-            }
-
-            .feature-card:hover .feature-icon {
-                transform: scale(1.1) rotate(5deg);
-            }
-
-            .feature-icon {
-                transition: all 0.4s ease;
-                z-index: 2;
-                position: relative;
-            }
-
-            @keyframes gradientBorder {
-                0% { background-position: 0% 50% }
-                50% { background-position: 100% 50% }
-                100% { background-position: 0% 50% }
-            }
-
-            @keyframes shine {
-                0% { left: -100%; }
-                100% { left: 100%; }
-            }
-        </style>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-            <!-- Card 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
+            <!-- Step 1: Sign Up -->
             <div class="feature-card text-center p-8 bg-background rounded-lg border border-border relative">
                 <div class="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 feature-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold mb-3">Create an Account</h3>
-                <p class="text-muted-foreground">Sign up for free and set up your profile to start participating in exciting auctions today.</p>
+                <h3 class="text-xl font-semibold mb-3">Sign Up</h3>
+                <p class="text-muted-foreground">Create your account in seconds and verify your identity for secure bidding.</p>
             </div>
 
-            <!-- Card 2 -->
+            <!-- Step 2: Browse Auctions -->
             <div class="feature-card text-center p-8 bg-background rounded-lg border border-border relative">
                 <div class="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 feature-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold mb-3">Find & Bid on Items</h3>
-                <p class="text-muted-foreground">Browse our extensive collection and place your bids on items you're interested in winning.</p>
+                <h3 class="text-xl font-semibold mb-3">Browse Auctions</h3>
+                <p class="text-muted-foreground">Explore thousands of verified items across various categories and collections.</p>
             </div>
 
-            <!-- Card 3 -->
+            <!-- Step 3: Place Bids -->
             <div class="feature-card text-center p-8 bg-background rounded-lg border border-border relative">
                 <div class="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 feature-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold mb-3">Win & Receive</h3>
-                <p class="text-muted-foreground">Pay securely for your winning bids and receive your items directly from trusted sellers.</p>
+                <h3 class="text-xl font-semibold mb-3">Place Bids</h3>
+                <p class="text-muted-foreground">Bid in real-time with our intuitive interface and automated bid management.</p>
+            </div>
+
+            <!-- Step 4: Win & Collect -->
+            <div class="feature-card text-center p-8 bg-background rounded-lg border border-border relative">
+                <div class="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Win & Collect</h3>
+                <p class="text-muted-foreground">Secure your items with our trusted payment system and global shipping.</p>
             </div>
         </div>
     </div>
@@ -217,67 +147,116 @@
     </div>
 </section>
 
-<!-- Categories Section -->
+<!-- Why Choose AuctionHouse Section -->
 <section class="py-16 bg-card border-y border-border">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center text-foreground mb-12">Popular Categories</h2>
+        <h2 class="text-3xl font-bold text-center text-foreground mb-8">Why Choose Auction Hub?</h2>
+        <p class="text-center text-muted-foreground max-w-3xl mx-auto mb-12">
+            Our platform combines cutting-edge technology with user-friendly design to deliver the ultimate auction experience.
+        </p>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="#" class="group">
-                <div class="bg-background rounded-lg overflow-hidden border border-border transition-all duration-300 group-hover:border-primary">
-                    <div class="h-32 bg-muted/20 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h3 class="font-medium text-foreground">Electronics</h3>
-                        <p class="text-sm text-muted-foreground mt-1">142 items</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Real-Time Bidding -->
+            <div class="feature-card relative rounded-lg overflow-hidden group">
+                <div class="gradient-border absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-70 animate-gradient-shift rounded-lg"></div>
+                <div class="relative bg-background m-[2px] rounded-lg p-8 h-full flex flex-col justify-between group-hover:bg-background/90 transition-all duration-300 overflow-hidden">
+                    <div class="shine-effect absolute inset-0 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative z-10">
+                        <div class="flex justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary icon-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-center">Real-Time Bidding</h3>
+                        <p class="text-muted-foreground text-center">Experience lightning-fast bidding with instant updates and zero lag.</p>
                     </div>
                 </div>
-            </a>
+            </div>
 
-            <a href="#" class="group">
-                <div class="bg-background rounded-lg overflow-hidden border border-border transition-all duration-300 group-hover:border-primary">
-                    <div class="h-32 bg-muted/20 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h3 class="font-medium text-foreground">Collectibles</h3>
-                        <p class="text-sm text-muted-foreground mt-1">89 items</p>
+            <!-- Secure Transactions -->
+            <div class="feature-card relative rounded-lg overflow-hidden group">
+                <div class="gradient-border absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-70 animate-gradient-shift rounded-lg"></div>
+                <div class="relative bg-background m-[2px] rounded-lg p-8 h-full flex flex-col justify-between group-hover:bg-background/90 transition-all duration-300 overflow-hidden">
+                    <div class="shine-effect absolute inset-0 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative z-10">
+                        <div class="flex justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary icon-float" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-center">Secure Transactions</h3>
+                        <p class="text-muted-foreground text-center">Bank-level security ensures your transactions are safe and protected.</p>
                     </div>
                 </div>
-            </a>
+            </div>
 
-            <a href="#" class="group">
-                <div class="bg-background rounded-lg overflow-hidden border border-border transition-all duration-300 group-hover:border-primary">
-                    <div class="h-32 bg-muted/20 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h3 class="font-medium text-foreground">Real Estate</h3>
-                        <p class="text-sm text-muted-foreground mt-1">28 items</p>
+            <!-- Global Community -->
+            <div class="feature-card relative rounded-lg overflow-hidden group">
+                <div class="gradient-border absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-70 animate-gradient-shift rounded-lg"></div>
+                <div class="relative bg-background m-[2px] rounded-lg p-8 h-full flex flex-col justify-between group-hover:bg-background/90 transition-all duration-300 overflow-hidden">
+                    <div class="shine-effect absolute inset-0 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative z-10">
+                        <div class="flex justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary icon-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-center">Global Community</h3>
+                        <p class="text-muted-foreground text-center">Connect with collectors and enthusiasts from around the world.</p>
                     </div>
                 </div>
-            </a>
+            </div>
 
-            <a href="#" class="group">
-                <div class="bg-background rounded-lg overflow-hidden border border-border transition-all duration-300 group-hover:border-primary">
-                    <div class="h-32 bg-muted/20 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h3 class="font-medium text-foreground">Jewelry</h3>
-                        <p class="text-sm text-muted-foreground mt-1">56 items</p>
+            <!-- Market Analytics -->
+            <div class="feature-card relative rounded-lg overflow-hidden group">
+                <div class="gradient-border absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-70 animate-gradient-shift rounded-lg"></div>
+                <div class="relative bg-background m-[2px] rounded-lg p-8 h-full flex flex-col justify-between group-hover:bg-background/90 transition-all duration-300 overflow-hidden">
+                    <div class="shine-effect absolute inset-0 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative z-10">
+                        <div class="flex justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary icon-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-center">Market Analytics</h3>
+                        <p class="text-muted-foreground text-center">Access detailed market insights and price history for informed bidding.</p>
                     </div>
                 </div>
-            </a>
+            </div>
+
+            <!-- 24/7 Auctions -->
+            <div class="feature-card relative rounded-lg overflow-hidden group">
+                <div class="gradient-border absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-70 animate-gradient-shift rounded-lg"></div>
+                <div class="relative bg-background m-[2px] rounded-lg p-8 h-full flex flex-col justify-between group-hover:bg-background/90 transition-all duration-300 overflow-hidden">
+                    <div class="shine-effect absolute inset-0 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative z-10">
+                        <div class="flex justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary icon-glow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-center">24/7 Auctions</h3>
+                        <p class="text-muted-foreground text-center">Bid anytime, anywhere with our round-the-clock auction platform.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verified Items -->
+            <div class="feature-card relative rounded-lg overflow-hidden group">
+                <div class="gradient-border absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary opacity-70 animate-gradient-shift rounded-lg"></div>
+                <div class="relative bg-background m-[2px] rounded-lg p-8 h-full flex flex-col justify-between group-hover:bg-background/90 transition-all duration-300 overflow-hidden">
+                    <div class="shine-effect absolute inset-0 opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative z-10">
+                        <div class="flex justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary icon-shake" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-center">Verified Items</h3>
+                        <p class="text-muted-foreground text-center">All items are authenticated and verified by our expert team.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -468,6 +447,142 @@
         animation: shine 1.5s ease-in-out;
     }
 
+    /* Styles for Why Choose AuctionHouse section */
+    .gradient-border {
+        background-size: 300% 300%;
+        animation: moveGradient 4s alternate infinite;
+        border-bottom: 3px solid transparent;
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+    }
+
+    @keyframes moveGradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .animate-gradient-shift {
+        animation: gradientShift 6s ease infinite;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .shine-effect {
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 150%;
+        height: 100%;
+        transform: rotate(45deg);
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        animation: shine 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+        0% { left: -150%; }
+        100% { left: 150%; }
+    }
+
+    .feature-card:hover .shine-effect {
+        animation: shine 1.5s ease-in-out;
+    }
+    
+    /* New styles for feature icons and border treatment */
+    .feature-card {
+        position: relative;
+        border-bottom: 4px solid transparent;
+    }
+    
+    .feature-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--secondary), var(--primary));
+        background-size: 200% auto;
+        animation: gradient 3s ease infinite;
+    }
+    
+    @keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+    
+    /* Icon animations */
+    .icon-pulse {
+        animation: iconPulse 2s ease-in-out infinite;
+    }
+    
+    .icon-spin {
+        animation: iconSpin 6s linear infinite;
+    }
+    
+    .icon-bounce {
+        animation: iconBounce 2s ease-in-out infinite;
+    }
+    
+    .icon-float {
+        animation: iconFloat 3s ease-in-out infinite;
+    }
+    
+    .icon-shake {
+        animation: iconShake 2s ease-in-out infinite;
+    }
+    
+    .icon-glow {
+        animation: iconGlow 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 2px var(--primary));
+    }
+    
+    @keyframes iconPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    @keyframes iconSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes iconBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes iconFloat {
+        0%, 100% { transform: translateY(0) rotate(0); }
+        50% { transform: translateY(-5px) rotate(2deg); }
+    }
+    
+    @keyframes iconShake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+        20%, 40%, 60%, 80% { transform: translateX(2px); }
+    }
+    
+    @keyframes iconGlow {
+        0%, 100% { filter: drop-shadow(0 0 2px var(--primary)); }
+        50% { filter: drop-shadow(0 0 8px var(--primary)); }
+    }
 </style>
 <!-- Footer -->
 <jsp:include page="includes/footer.jsp" />

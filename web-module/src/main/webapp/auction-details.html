@@ -1,101 +1,798 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="page-title">Auction Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(240 5.9% 90%)",
+            input: "hsl(240 5.9% 90%)",
+            ring: "hsl(240 5% 64.9%)",
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            primary: {
+              DEFAULT: "hsl(240 5.9% 90%)",
+              foreground: "hsl(240 5.9% 10%)"
+            },
+            secondary: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(0 0% 98%)"
+            },
+            muted: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(240 5% 64.9%)"
+            },
+            card: {
+              DEFAULT: "hsl(240 5.9% 10%)",
+              foreground: "hsl(0 0% 98%)"
+            }
+          },
+          animation: {
+            "fade-in": "fade-in 0.3s ease-out",
+            "pulse-slow": "pulse 3s infinite"
+          },
+          keyframes: {
+            "fade-in": {
+              "0%": {opacity: 0},
+              "100%": {opacity: 1}
+            }
+          }
+        }
+      },
+      darkMode: "class"
+    }
+  </script>
   <style>
-    .log-container { max-height: 150px; overflow-y: auto; }
+    .log-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border-radius: 0.5rem;
+      scrollbar-width: thin;
+    }
     .log-container::-webkit-scrollbar { width: 8px; }
-    .log-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    .log-container::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-    .log-container::-webkit-scrollbar-thumb:hover { background: #555; }
-    .image-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-    .image-gallery img { max-width: 100%; height: auto; border-radius: 0.5rem; object-fit: cover; }
+    .log-container::-webkit-scrollbar-track { background: hsl(240 3.7% 15.9%); border-radius: 10px; }
+    .log-container::-webkit-scrollbar-thumb { background: hsl(240 5% 64.9%); border-radius: 10px; }
+    .log-container::-webkit-scrollbar-thumb:hover { background: hsl(240 5% 84.9%); }
+
+    /* New enhanced image gallery styles */
+    .image-gallery-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      position: relative;
+    }
+
+    .main-image-container {
+      width: 100%;
+      height: 400px;
+      position: relative;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      background-color: hsl(240 3.7% 10%);
+    }
+
+    .main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0.75rem;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .thumbnails-container {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .thumbnail {
+      width: 80px;
+      height: 80px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      opacity: 0.7;
+    }
+
+    .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumbnail:hover {
+      transform: translateY(-3px);
+      opacity: 0.9;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .thumbnail.active {
+      border-color: hsl(240 5.9% 90%);
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .thumbnail::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, hsl(210, 100%, 60%), hsl(280, 100%, 60%));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .thumbnail:hover::after {
+      transform: scaleX(1);
+    }
+
+    .thumbnail.active::after {
+      transform: scaleX(1);
+      height: 4px;
+    }
+
+    .image-navigation {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1rem;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .main-image-container:hover .image-navigation {
+      opacity: 1;
+    }
+
+    .nav-button {
+      background-color: hsla(240, 5.9%, 90%, 0.3);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .nav-button:hover {
+      background-color: hsla(240, 5.9%, 90%, 0.5);
+      transform: scale(1.1);
+    }
+
+    .nav-button svg {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+
+    .image-counter {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background-color: hsla(0, 0%, 0%, 0.6);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+
+    .no-images-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+      background-color: hsl(240 3.7% 12%);
+      border-radius: 1rem;
+      text-align: center;
+    }
+
+    /* Image zoom effect on hover */
+    .main-image-container.zoomable .main-image {
+      cursor: zoom-in;
+    }
+
+    .main-image-container.zoomed .main-image {
+      cursor: zoom-out;
+      transform: scale(1.5);
+    }
+
+    /* Enhanced animation classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .slide-in-right {
+      animation: slideInRight 0.5s ease forwards;
+    }
+
+    .slide-in-left {
+      animation: slideInLeft 0.5s ease forwards;
+    }
+
+    .pulse-once {
+      animation: pulseOnce 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideInLeft {
+      from { transform: translateX(-30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes pulseOnce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* Shimmer effect for loading states */
+    .shimmer {
+      background: linear-gradient(
+        90deg,
+        hsla(240, 3.7%, 15%, 0.1) 25%,
+        hsla(240, 3.7%, 20%, 0.3) 50%,
+        hsla(240, 3.7%, 15%, 0.1) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Enhanced auction status with pulsing animation */
     .auction-status {
       font-weight: bold;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      display: inline-block;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
     }
-    .status-active { background-color: #d1fae5; color: #065f46; } /* green-100 / green-800 */
-    .status-waiting { background-color: #fffbeb; color: #b45309; } /* amber-100 / amber-800 */
-    .status-ended { background-color: #fee2e2; color: #991b1b; } /* red-100 / red-800 */
-    .countdown { font-family: monospace; font-weight: bold; }
-    /* New styles for bid history */
-    .bid-history-container { max-height: 300px; overflow-y: auto; }
-    .bid-history-item { transition: background-color 1s ease; }
-    .bid-history-item.new-bid { background-color: rgba(147, 197, 253, 0.3); } /* blue-200 with opacity */
-    .bid-history-empty { padding: 1rem; text-align: center; color: #6b7280; font-style: italic; }
+
+    .status-active {
+      background-color: hsl(160, 84%, 39%, 0.15);
+      color: hsl(160, 84%, 59%);
+      border: 1px solid hsl(160, 84%, 39%, 0.3);
+    }
+
+    .status-active .status-dot {
+      animation: pulse 2s infinite;
+    }
+
+    .status-waiting {
+      background-color: hsl(45, 93%, 47%, 0.15);
+      color: hsl(45, 93%, 67%);
+      border: 1px solid hsl(45, 93%, 47%, 0.3);
+    }
+
+    .status-waiting .status-dot {
+      animation: blink 2s infinite;
+    }
+
+    .status-ended {
+      background-color: hsl(0, 72%, 51%, 0.15);
+      color: hsl(0, 72%, 71%);
+      border: 1px solid hsl(0, 72%, 51%, 0.3);
+    }
+
+    .status-dot {
+      height: 8px;
+      width: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.8); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0.7; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* Improved countdown timer */
+    .countdown-container {
+      background: linear-gradient(135deg, hsl(240, 15%, 18%), hsl(240, 10%, 14%));
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      border: 1px solid hsl(240, 8%, 24%);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .countdown-container:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .countdown {
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: -0.05em;
+      background-image: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: 1.75rem;
+    }
+
+    .ending-soon .countdown {
+      background-image: linear-gradient(90deg, #ff8177 0%, #ff867a 30%, #ff8c7f 60%, #f99185 100%);
+    }
+
+    /* Enhanced bid button with hover effect */
+    .bid-button {
+      background-image: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      color: hsl(240, 5.9%, 10%);
+      font-weight: bold;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 233, 123, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bid-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 233, 123, 0.3);
+    }
+
+    .bid-button:active {
+      transform: translateY(1px);
+    }
+
+    .bid-button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+      transform: translateX(-100%);
+    }
+
+    .bid-button:hover::after {
+      transform: translateX(100%);
+      transition: transform 0.6s ease;
+    }
+  </style>
+
+  <!-- Added CSS for realtime log UI components -->
+  <style>
+    /* Floating log button */
+    .floating-log-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .floating-log-button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .log-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: hsl(0, 72%, 51%);
+      color: white;
+      font-size: 0.7rem;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* Log modal */
+    .log-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .log-modal-overlay.visible {
+      opacity: 1;
+      display: flex;
+    }
+
+    .log-modal-header {
+      background-color: hsl(240 5.9% 10%);
+      padding: 1rem;
+      border-bottom: 1px solid hsl(240 8% 24%);
+      border-radius: 0.5rem 0.5rem 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .log-modal-body {
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .log-modal-close {
+      background: none;
+      border: none;
+      color: hsl(240 5% 64.9%);
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .log-modal-close:hover {
+      color: hsl(0, 0%, 98%);
+    }
+
+    #log-modal {
+      width: 90%;
+      max-width: 600px;
+      background-color: hsl(240 5.9% 10%);
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      animation: modalFadeIn 0.3s ease forwards;
+    }
+
+    @keyframes modalFadeIn {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Log entry styling */
+    .log-entry {
+      border-left: 3px solid hsl(240 5% 64.9%);
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background-color: hsla(240, 3.7%, 15.9%, 0.5);
+      border-radius: 0 0.3rem 0.3rem 0;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .log-entry.bid {
+      border-left-color: hsl(160, 84%, 39%);
+    }
+
+    .log-entry.user {
+      border-left-color: hsl(217, 91%, 60%);
+    }
+
+    .log-entry.warning {
+      border-left-color: hsl(45, 93%, 47%);
+    }
+
+    .log-entry.error {
+      border-left-color: hsl(0, 72%, 51%);
+    }
+
+    .log-time {
+      font-family: monospace;
+      color: hsl(240 5% 64.9%);
+      font-size: 0.8rem;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
   </style>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<body class="bg-background text-foreground font-sans leading-normal tracking-normal">
 
-<div class="container mx-auto p-4">
-  <div class="flex justify-between items-center mb-8">
-    <h1 class="text-4xl font-bold text-gray-800" id="auction-title-header">Auction Details</h1>
-    <div class="flex items-center space-x-4">
-                <span id="user-info-display" class="text-gray-700 hidden">
-                    Logged in as <span id="current-username" class="font-bold"></span> (<span id="current-user-role" class="font-bold"></span>)
-                </span>
-      <a href="index.jsp" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">All Auctions</a>
-      <a href="login-register.html" id="login-link" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 hidden">Login / Register</a>
-      <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 hidden">Logout</button>
-    </div>
-  </div>
-
-  <div id="auction-details-container" class="bg-white rounded-lg shadow-lg p-6 mb-8 hidden">
-    <!-- Auction details will be loaded here by JavaScript -->
-    <h2 class="text-3xl font-semibold text-gray-800 mb-4" id="auction-details-title"></h2>
-    <span class="auction-status" id="auction-details-status"></span>
-    <p class="text-gray-700 mb-4" id="auction-details-description"></p>
-
-    <div class="image-gallery mb-6" id="auction-image-gallery">
-      <!-- Images will be loaded here -->
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div>
-        <p class="text-gray-600 mb-1">Starting Price: <span class="font-bold text-green-600" id="auction-details-start-price"></span></p>
-        <p class="text-gray-600 mb-2">Current Bid: <span class="font-bold text-blue-600 text-2xl" id="auction-details-current-bid"></span></p>
-        <p class="text-gray-600 mb-4">Winning Bidder: <span class="font-medium text-gray-700" id="auction-details-winning-bidder"></span></p>
-        <p class="text-gray-500 text-sm">Min Increment: <span id="auction-details-min-increment"></span></p>
-        <p class="text-gray-600 mt-2">Category: <a href="#" class="text-blue-500 hover:underline" id="auction-details-category"></a></p>
+<header class="bg-card shadow-md border-b border-border fixed top-0 w-full z-[1000]">
+  <div class="container mx-auto px-4 py-4">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center">
+        <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center mr-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <a href="index.jsp" class="font-bold text-2xl text-foreground">AuctionHub</a>
       </div>
-      <div>
-        <p class="text-gray-500 text-sm">Starts: <span id="auction-details-start-time"></span></p>
-        <p class="text-gray-500 text-sm">Ends: <span id="auction-details-end-time"></span></p>
-        <p class="text-gray-700 mt-2">Time Left: <span class="countdown text-xl" id="auction-details-countdown"></span></p>
+
+      <nav class="hidden md:flex space-x-8">
+        <a href="index.jsp" class="text-primary font-medium">Home</a>
+        <a href="auctions.html" class="text-muted-foreground hover:text-primary transition duration-300">Auctions</a>
+        <a href="#" class="text-muted-foreground hover:text-primary transition duration-300">Categories</a>
+        <a href="#how-it-works" class="text-muted-foreground hover:text-primary transition duration-300">How It Works</a>
+        <a href="#contact" class="text-muted-foreground hover:text-primary transition duration-300">Contact</a>
+      </nav>
+
+      <div class="flex items-center space-x-4">
+        <a href="login-register.html" class="md:block shadcn-button" id="login-button">Login</a>
+        <a href="create-auction.html" id="create-auction-link-nav" class="bg-muted hover:bg-accent text-foreground font-medium py-2 px-4 rounded transition duration-300 hidden">Create Auction</a>
+        <div id="user-profile" class="hidden">
+          <span id="username-display" class="text-muted-foreground mr-2"></span>
+          <button id="logout-button" class="text-red-400 hover:text-red-300">Logout</button>
+        </div>
+        <button class="md:hidden" id="mobile-menu-button">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
     </div>
 
-    <!-- Bid Form (conditionally shown) -->
-    <form id="bid-form" class="mt-4 hidden">
-      <input type="number" step="0.01" placeholder="Your Bid" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2" id="bid-amount-input" required>
-      <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-300">Place Bid</button>
-      <p id="bid-message" class="text-red-500 text-xs italic mt-2"></p>
-    </form>
-    <p id="login-to-bid-message" class="text-gray-600 text-center mt-4 hidden">Please <a href="login-register.html" class="text-blue-500 hover:underline">login</a> to place a bid.</p>
-    <p id="bid-disabled-message" class="text-gray-600 text-center mt-4 hidden">Bidding is not possible for this auction (ended, not started, or closed).</p>
+    <!-- Mobile Menu (hidden by default) -->
+    <div class="md:hidden hidden mt-4 pb-4" id="mobile-menu">
+      <a href="index.jsp" class="block py-2 text-primary font-medium">Home</a>
+      <a href="auctions.html" class="block py-2 text-muted-foreground">Auctions</a>
+      <a href="#" class="block py-2 text-muted-foreground">Categories</a>
+      <a href="#how-it-works" class="block py-2 text-muted-foreground">How It Works</a>
+      <a href="#contact" class="block py-2 text-muted-foreground">Contact</a>
+      <a href="login-register.html" class="block py-2 text-muted-foreground" id="mobile-login-button">Login</a>
+    </div>
   </div>
+</header>
 
-  <!-- New Bid History Section -->
-  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Bid History</h2>
-    <div id="bid-history-container" class="bid-history-container">
-      <div id="bid-history-list" class="divide-y divide-gray-200">
-        <p class="bid-history-empty">No bids have been placed yet.</p>
+<div class="container mx-auto p-4 max-w-7xl pt-32">
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+    <!-- Main auction details (left and middle) -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Auction details card -->
+      <div id="auction-details-container" class="bg-card rounded-xl shadow-md p-6 border border-border hidden animate-fade-in">
+        <div class="flex justify-between items-start mb-4">
+          <h2 class="text-2xl font-bold text-foreground slide-in-left" id="auction-details-title"></h2>
+          <span class="auction-status slide-in-right" id="auction-details-status"></span>
+        </div>
+
+        <p class="text-muted-foreground mb-6 fade-in" id="auction-details-description"></p>
+
+        <!-- Enhanced Image Gallery -->
+        <div class="image-gallery-container mb-8" id="image-gallery-container">
+          <div class="main-image-container zoomable" id="main-image-container">
+            <div class="image-navigation">
+              <button class="nav-button prev-image" id="prev-image">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button class="nav-button next-image" id="next-image">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+            <img src="" alt="" class="main-image" id="main-image">
+            <div class="image-counter" id="image-counter">0 / 0</div>
+          </div>
+          <div class="thumbnails-container" id="thumbnails-container"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="space-y-3 slide-in-left">
+            <p class="flex justify-between text-muted-foreground">
+              <span class="text-muted-foreground flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Starting Price:
+              </span>
+              <span class="font-semibold text-green-500" id="auction-details-start-price"></span>
+            </p>
+            <p class="flex justify-between text-muted-foreground">
+              <span class="text-muted-foreground flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Current Bid:
+              </span>
+              <span class="font-bold text-blue-400 text-xl pulse-once" id="auction-details-current-bid"></span>
+            </p>
+            <p class="flex justify-between text-muted-foreground">
+              <span class="text-muted-foreground flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Winning Bidder:
+              </span>
+              <span class="font-medium text-foreground" id="auction-details-winning-bidder"></span>
+            </p>
+            <p class="flex justify-between text-muted-foreground">
+              <span class="text-muted-foreground flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11l7-7 7 7M5 19l7-7 7 7" />
+                </svg>
+                Min Increment:
+              </span>
+              <span id="auction-details-min-increment"></span>
+            </p>
+            <p class="flex justify-between text-muted-foreground">
+              <span class="text-muted-foreground flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                Category:
+              </span>
+              <a href="#" class="text-blue-400 hover:underline flex items-center group" id="auction-details-category">
+                <span class="category-name"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transform transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </p>
+          </div>
+          <div class="space-y-3 slide-in-right">
+            <p class="flex justify-between text-muted-foreground">
+              <span class="text-muted-foreground flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Starts:
+              </span>
+              <span id="auction-details-start-time"></span>
+            </p>
+            <p class="flex justify-between text-muted-foreground">
+              <span class="text-muted-foreground flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Ends:
+              </span>
+              <span id="auction-details-end-time"></span>
+            </p>
+            <div class="countdown-container" id="countdown-container">
+              <span class="text-muted-foreground block text-sm mb-1">Time Remaining:</span>
+              <span class="countdown text-2xl" id="auction-details-countdown"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Bid Form (conditionally shown) -->
+        <form id="bid-form" class="mt-6 hidden animate-fade-in">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-grow">
+              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
+              <input type="number" step="0.01" placeholder="Your Bid Amount" class="w-full pl-8 pr-4 py-3 bg-secondary border border-border focus:border-ring focus:ring-1 focus:ring-ring text-foreground rounded-lg shadow-inner" id="bid-amount-input" required>
+            </div>
+            <button type="submit" class="bid-button flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Place Bid
+            </button>
+          </div>
+          <p id="bid-message" class="text-red-400 text-sm italic mt-2"></p>
+          <div class="text-sm text-muted-foreground mt-2 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m-1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Minimum bid: $<span id="min-bid-amount"></span>
+          </div>
+        </form>
+        <p id="login-to-bid-message" class="text-muted-foreground text-center mt-4 hidden p-4 bg-secondary rounded-lg border border-border">
+          Please <a href="login-register.html" class="text-blue-400 hover:underline font-medium">login</a> to place a bid.
+        </p>
+        <p id="bid-disabled-message" class="text-muted-foreground text-center mt-4 hidden p-4 bg-secondary rounded-lg border border-border">
+          Bidding is not possible for this auction (ended, not started, or closed).
+        </p>
+      </div>
+    </div>
+
+    <!-- Bid History Section (right side) -->
+    <div class="lg:col-span-1 animate-fade-in">
+      <div class="bg-card rounded-xl shadow-md border border-border h-full flex flex-col">
+        <div class="p-4 border-b border-border flex justify-between items-center bg-secondary rounded-xl">
+          <h2 class="text-lg font-semibold text-foreground flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+            </svg>
+            Bid History
+          </h2>
+          <span id="bid-count" class="bg-primary text-card text-xs font-medium px-2.5 py-1 rounded-full">0 bids</span>
+        </div>
+
+        <div id="bid-history-container" class="bid-history-container flex-grow p-1">
+          <div id="bid-history-list" class="h-full">
+            <p class="bid-history-empty">No bids have been placed yet.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="bg-white rounded-lg shadow-md p-6">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Real-time Auction Log</h2>
-    <div id="auction-log" class="bg-gray-50 p-4 rounded-md border border-gray-200 log-container text-sm text-gray-700">
-      <p class="text-gray-500 italic">Connecting to real-time updates...</p>
+<!-- Hidden log container (not visible but used by JavaScript -->
+<div id="auction-log" class="hidden"></div>
+
+<!-- Floating log button -->
+<button id="floating-log-button" class="floating-log-button" title="Show activity log">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <span id="log-badge" class="log-badge">0</span>
+</button>
+
+<!-- Log modal overlay -->
+<div id="log-modal" class="log-modal-overlay">
+  <div class="w-[95%] sm:w-[90%] md:w-[80%] max-w-lg lg:max-w-xl bg-card rounded-lg shadow-xl border border-border transition-all transform duration-300">
+    <div class="log-modal-header flex justify-between items-center p-3 sm:p-4 border-b border-border rounded-t-lg">
+      <h3 class="text-base sm:text-lg font-semibold text-foreground flex items-center gap-1.5 sm:gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="truncate">Real-time Activity Log</span>
+      </h3>
+      <button id="close-log-modal" class="log-modal-close p-1.5 rounded-full hover:bg-secondary transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="log-modal-body p-3 sm:p-4">
+      <div id="modal-auction-log" class="bg-secondary p-2 sm:p-3 rounded-lg border border-border log-container text-xs sm:text-sm text-muted-foreground max-h-[50vh] sm:max-h-[60vh] md:max-h-[70vh]">
+        <!-- Log content will be mirrored here -->
+      </div>
     </div>
   </div>
 </div>
@@ -120,7 +817,11 @@
   const auctionDetailsStartTime = document.getElementById('auction-details-start-time');
   const auctionDetailsEndTime = document.getElementById('auction-details-end-time');
   const auctionDetailsCountdown = document.getElementById('auction-details-countdown');
-  const auctionDetailsCategory = document.getElementById('auction-details-category'); // Add this line
+  const auctionDetailsCategory = document.getElementById('auction-details-category');
+  const categoryNameSpan = document.querySelector('.category-name');
+  const bidCount = document.getElementById('bid-count');
+  const minBidAmount = document.getElementById('min-bid-amount');
+  const bidHistoryList = document.getElementById('bid-history-list'); // Add missing variable
 
   const bidForm = document.getElementById('bid-form');
   const bidAmountInput = document.getElementById('bid-amount-input');
@@ -130,8 +831,15 @@
 
   const auctionLog = document.getElementById('auction-log');
 
-  // New bid history elements
-  const bidHistoryList = document.getElementById('bid-history-list');
+  // New log modal elements
+  const floatingLogButton = document.getElementById('floating-log-button');
+  const logModal = document.getElementById('log-modal');
+  const closeLogModal = document.getElementById('close-log-modal');
+  const modalAuctionLog = document.getElementById('modal-auction-log');
+  const logBadge = document.getElementById('log-badge');
+
+  let isLogModalVisible = false;
+  let newLogCount = 0;
 
   let websocket;
   let auctionId = null; // Store the current auction ID from URL
@@ -148,10 +856,45 @@
 
   function logMessage(message, className = '') {
     const p = document.createElement('p');
-    p.className = `mb-1 ${className}`;
-    p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+    p.className = `mb-2 p-2 rounded ${className}`;
+    p.innerHTML = `<span class="text-gray-400 mr-1">[${new Date().toLocaleTimeString()}]</span> ${message}`;
+
+    // Add to the main auction log
     auctionLog.appendChild(p);
     auctionLog.scrollTop = auctionLog.scrollHeight;
+
+    // Clone and add to modal log too
+    const modalP = p.cloneNode(true);
+    modalAuctionLog.appendChild(modalP);
+    modalAuctionLog.scrollTop = modalAuctionLog.scrollHeight;
+
+    // Update badge count if modal is not visible
+    if (!isLogModalVisible) {
+      newLogCount++;
+      updateLogBadge();
+    }
+  }
+
+  // New functions for log modal
+  function toggleLogModal() {
+    isLogModalVisible = !isLogModalVisible;
+    if (isLogModalVisible) {
+      logModal.classList.add('visible');
+      // Reset badge count when modal is opened
+      newLogCount = 0;
+      updateLogBadge();
+    } else {
+      logModal.classList.remove('visible');
+    }
+  }
+
+  function updateLogBadge() {
+    if (newLogCount > 0) {
+      logBadge.textContent = newLogCount > 99 ? '99+' : newLogCount;
+      logBadge.classList.add('show');
+    } else {
+      logBadge.classList.remove('show');
+    }
   }
 
   function getUrlParameter(name) {
@@ -163,21 +906,8 @@
 
   // --- Authentication/Authorization Functions ---
   function updateAuthUI() {
-    const token = getAuthToken();
-    const username = getCurrentUsername();
-    const role = getCurrentUserRole();
-
-    if (token && username && role) {
-      userInfoDisplay.classList.remove('hidden');
-      currentUsernameSpan.textContent = username;
-      currentUserRoleSpan.textContent = role;
-      loginLink.classList.add('hidden');
-      logoutBtn.classList.remove('hidden');
-    } else {
-      userInfoDisplay.classList.add('hidden');
-      loginLink.classList.remove('hidden');
-      logoutBtn.classList.add('hidden');
-    }
+    // Just call updateHeaderAuthState since the old elements are commented out
+    updateHeaderAuthState();
   }
 
   async function handleLogout() {
@@ -191,19 +921,19 @@
       });
 
       if (response.ok) {
-        logMessage('Logged out successfully.', 'text-green-600');
+        logMessage('Logged out successfully.', 'bg-green-50 text-green-700');
       } else {
-        logMessage('Logout failed. Token might be invalid or expired on server.', 'text-red-500');
+        logMessage('Logout failed. Token might be invalid or expired on server.', 'bg-red-50 text-red-700');
       }
     } catch (error) {
-      logMessage('Network error during logout.', 'text-red-700');
+      logMessage('Network error during logout.', 'bg-red-50 text-red-700');
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUsername');
       localStorage.removeItem('currentUserRole');
       // Redirect to login page after logout
-      window.location.href = `login-register.jsp`;
+      window.location.href = `login-register.html`;
     }
   }
 
@@ -217,15 +947,22 @@
     websocket = new WebSocket(wsUrl);
 
     websocket.onopen = function(event) {
-      logMessage('WebSocket connected.', 'text-green-600');
+      logMessage('WebSocket connected. Receiving real-time updates.', 'bg-green-50 text-green-700');
     };
 
     websocket.onmessage = function(event) {
       try {
+        // First check if the message is a simple text welcome message
+        if (event.data.startsWith('Welcome to')) {
+          logMessage(event.data, 'bg-blue-50 text-blue-700');
+          return;
+        }
+
+        // Otherwise try to parse as JSON for auction updates
         const data = JSON.parse(event.data);
         if (data.auctionId == auctionId && data.currentBid !== undefined && data.winningBidder) { // Only update if it's THIS auction
           updateAuctionDetails(data);
-          logMessage(`Auction ${data.title} (#${data.auctionId}): New bid $${data.currentBid.toFixed(2)} by ${data.winningBidder}`, 'text-blue-600');
+          logMessage(`New bid: $${data.currentBid.toFixed(2)} by ${data.winningBidder}`, 'bg-blue-50 text-blue-700');
 
           // Update bid history if we have last bid information
           if (data.lastBid) {
@@ -233,19 +970,24 @@
           }
         }
       } catch (e) {
-        logMessage(`WebSocket Error: ${e.message}. Raw message: ${event.data}`, 'text-red-500');
+        // If it's not valid JSON, just display the raw message instead of showing an error
+        if (event.data && typeof event.data === 'string') {
+          logMessage(event.data, 'bg-gray-50 text-gray-600');
+        } else {
+          logMessage(`WebSocket Error: ${e.message}. Raw message: ${event.data}`, 'bg-red-50 text-red-700');
+        }
       }
     };
 
     websocket.onclose = function(event) {
-      logMessage('WebSocket disconnected. Trying to reconnect in 5 seconds...', 'text-red-600');
+      logMessage('WebSocket disconnected. Trying to reconnect in 5 seconds...', 'bg-red-50 text-red-700');
       if (getAuthToken()) {
         setTimeout(connectWebSocket, 5000);
       }
     };
 
     websocket.onerror = function(error) {
-      logMessage('WebSocket error: ' + error.message, 'text-red-700');
+      logMessage('WebSocket error: ' + error.message, 'bg-red-50 text-red-700');
     };
   }
 
@@ -256,11 +998,26 @@
     const endTime = new Date(auction.endTime);
 
     if (now < startTime) {
-      return { text: 'WAITING', class: 'status-waiting', canBid: false };
+      return {
+        text: 'WAITING',
+        class: 'status-waiting',
+        icon: '<span class="h-2 w-2 rounded-full bg-yellow-400 inline-block mr-1"></span>',
+        canBid: false
+      };
     } else if (now > endTime) {
-      return { text: 'ENDED', class: 'status-ended', canBid: false };
+      return {
+        text: 'ENDED',
+        class: 'status-ended',
+        icon: '<span class="h-2 w-2 rounded-full bg-red-500 inline-block mr-1"></span>',
+        canBid: false
+      };
     } else {
-      return { text: 'ACTIVE', class: 'status-active', canBid: true };
+      return {
+        text: 'ACTIVE',
+        class: 'status-active',
+        icon: '<span class="h-2 w-2 rounded-full bg-green-500 animate-pulse-slow inline-block mr-1"></span>',
+        canBid: true
+      };
     }
   }
 
@@ -268,6 +1025,7 @@
     if (countdownInterval) clearInterval(countdownInterval); // Clear any existing interval
 
     const endTime = new Date(endTimeString).getTime();
+    const countdownContainer = document.getElementById('countdown-container');
 
     const updateTimer = () => {
       const now = new Date().getTime();
@@ -275,9 +1033,9 @@
 
       if (distance < 0) {
         clearInterval(countdownInterval);
-        auctionDetailsCountdown.textContent = 'ENDED';
-        auctionDetailsCountdown.classList.remove('text-red-600', 'text-orange-500');
-        auctionDetailsCountdown.classList.add('text-gray-500');
+        auctionDetailsCountdown.textContent = 'AUCTION ENDED';
+        countdownContainer.classList.remove('ending-soon');
+        countdownContainer.classList.add('bg-red-900', 'bg-opacity-20');
         // Update bid form status to disabled
         updateBidFormVisibility();
         return;
@@ -288,14 +1046,32 @@
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      auctionDetailsCountdown.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      // Format with leading zeros
+      const fHours = String(hours).padStart(2, '0');
+      const fMinutes = String(minutes).padStart(2, '0');
+      const fSeconds = String(seconds).padStart(2, '0');
 
-      if (distance < 1000 * 60 * 60) { // Less than 1 hour
-        auctionDetailsCountdown.classList.remove('text-orange-500');
-        auctionDetailsCountdown.classList.add('text-red-600');
-      } else if (distance < 1000 * 60 * 60 * 24) { // Less than 24 hours
-        auctionDetailsCountdown.classList.remove('text-red-600');
-        auctionDetailsCountdown.classList.add('text-orange-500');
+      if (days > 0) {
+        auctionDetailsCountdown.textContent = `${days}d ${fHours}:${fMinutes}:${fSeconds}`;
+      } else {
+        auctionDetailsCountdown.textContent = `${fHours}:${fMinutes}:${fSeconds}`;
+      }
+
+      // Update countdown container style based on time remaining
+      if (distance < 1000 * 60 * 5) { // Less than 5 minutes
+        countdownContainer.classList.add('ending-soon');
+
+        // Add a subtle pulse animation when under 5 minutes
+        if (!countdownContainer.classList.contains('pulse-once')) {
+          countdownContainer.classList.add('pulse-once');
+          setTimeout(() => {
+            countdownContainer.classList.remove('pulse-once');
+          }, 1000);
+        }
+      } else if (distance < 1000 * 60 * 60) { // Less than 1 hour
+        countdownContainer.classList.add('ending-soon');
+      } else {
+        countdownContainer.classList.remove('ending-soon');
       }
     };
 
@@ -313,20 +1089,30 @@
 
       const response = await fetch(`${CONTEXT_ROOT}/api/auctions/${auctionId}`, { headers });
       if (!response.ok) {
-        auctionDetailsContainer.classList.add('hidden');
-        auctionTitleHeader.textContent = 'Auction Not Found';
-        logMessage(`Error loading auction ${auctionId}: ${response.statusText}`, 'text-red-700');
+        if (auctionDetailsContainer) {
+          auctionDetailsContainer.classList.add('hidden');
+        }
+
+        if (auctionTitleHeader) {
+          auctionTitleHeader.textContent = 'Auction Not Found';
+        }
+
+        logMessage(`Error loading auction ${auctionId}: ${response.statusText}`, 'bg-red-50 text-red-700');
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+
       currentAuctionDetails = await response.json(); // Store fetched details
-      auctionDetailsContainer.classList.remove('hidden'); // Show container
+
+      if (auctionDetailsContainer) {
+        auctionDetailsContainer.classList.remove('hidden'); // Show container
+      }
 
       updateAuctionDisplay(currentAuctionDetails);
       setupCountdown(currentAuctionDetails.endTime);
       updateBidFormVisibility(); // Update bid form based on status/login
       fetchBidHistory(); // Fetch bid history
     } catch (error) {
-      logMessage(`Failed to load auction details: ${error.message}`, 'text-red-700');
+      logMessage(`Failed to load auction details: ${error.message}`, 'bg-red-50 text-red-700');
       console.error('Fetch auction details error:', error);
     }
   }
@@ -341,58 +1127,244 @@
 
       const response = await fetch(`${CONTEXT_ROOT}/api/auctions/${auctionId}/history`, { headers });
       if (!response.ok) {
-        logMessage(`Error loading bid history: ${response.statusText}`, 'text-red-500');
+        logMessage(`Error loading bid history: ${response.statusText}`, 'bg-red-50 text-red-700');
         return;
       }
 
       bidHistory = await response.json();
-      updateBidHistoryDisplay(bidHistory);
+      updateBidHistoryDisplay();
+      updateBidCount();
     } catch (error) {
-      logMessage(`Failed to load bid history: ${error.message}`, 'text-red-500');
+      logMessage(`Failed to load bid history: ${error.message}`, 'bg-red-50 text-red-700');
       console.error('Fetch bid history error:', error);
     }
   }
 
+  function updateBidCount() {
+    const count = bidHistory ? bidHistory.length : 0;
+    bidCount.textContent = count === 1 ? "1 bid" : `${count} bids`;
+  }
+
+  // Enhanced Image Gallery Functions
+  let currentImageIndex = 0;
+  let imageUrls = [];
+
+  function setupImageGallery(images) {
+    const imageGalleryContainer = document.getElementById('image-gallery-container');
+    const mainImageContainer = document.getElementById('main-image-container');
+    const mainImage = document.getElementById('main-image');
+    const thumbnailsContainer = document.getElementById('thumbnails-container');
+    const imageCounter = document.getElementById('image-counter');
+    const prevImageBtn = document.getElementById('prev-image');
+    const nextImageBtn = document.getElementById('next-image');
+
+    imageUrls = images || [];
+    currentImageIndex = 0;
+
+    // Clear existing thumbnails
+    thumbnailsContainer.innerHTML = '';
+
+    if (!imageUrls.length) {
+      // Show placeholder for no images
+      imageGalleryContainer.innerHTML = `
+        <div class="no-images-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p class="text-muted-foreground">No images available for this auction</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Update the main image
+    mainImage.src = imageUrls[0];
+    mainImage.alt = "Auction Item Image";
+    imageCounter.textContent = `1 / ${imageUrls.length}`;
+
+    // Create thumbnails
+    imageUrls.forEach((url, index) => {
+      const thumbnail = document.createElement('div');
+      thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+      thumbnail.innerHTML = `<img src="${url}" alt="Thumbnail ${index + 1}">`;
+      thumbnail.addEventListener('click', () => {
+        changeMainImage(index);
+      });
+      thumbnailsContainer.appendChild(thumbnail);
+    });
+
+    // Setup navigation buttons
+    prevImageBtn.addEventListener('click', () => {
+      changeMainImage((currentImageIndex - 1 + imageUrls.length) % imageUrls.length);
+    });
+
+    nextImageBtn.addEventListener('click', () => {
+      changeMainImage((currentImageIndex + 1) % imageUrls.length);
+    });
+
+    // Add keyboard navigation
+    document.addEventListener('keydown', handleImageKeyNavigation);
+
+    // Add zoom toggle on main image click
+    mainImage.addEventListener('click', () => {
+      mainImageContainer.classList.toggle('zoomed');
+    });
+
+    // Hide navigation buttons if only one image
+    if (imageUrls.length <= 1) {
+      prevImageBtn.style.display = 'none';
+      nextImageBtn.style.display = 'none';
+    }
+  }
+
+  function handleImageKeyNavigation(e) {
+    if (imageUrls.length <= 1) return;
+
+    if (e.key === 'ArrowLeft') {
+      changeMainImage((currentImageIndex - 1 + imageUrls.length) % imageUrls.length);
+    } else if (e.key === 'ArrowRight') {
+      changeMainImage((currentImageIndex + 1) % imageUrls.length);
+    }
+  }
+
+  function changeMainImage(index) {
+    if (index === currentImageIndex || index >= imageUrls.length) return;
+
+    const mainImage = document.getElementById('main-image');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const imageCounter = document.getElementById('image-counter');
+    const mainImageContainer = document.getElementById('main-image-container');
+
+    // Reset zoom if enabled
+    if (mainImageContainer.classList.contains('zoomed')) {
+      mainImageContainer.classList.remove('zoomed');
+    }
+
+    // Animate the transition
+    mainImage.style.opacity = '0';
+
+    setTimeout(() => {
+      mainImage.src = imageUrls[index];
+      mainImage.style.opacity = '1';
+
+      // Update active thumbnail
+      thumbnails.forEach((thumb, i) => {
+        if (i === index) {
+          thumb.classList.add('active');
+        } else {
+          thumb.classList.remove('active');
+        }
+      });
+
+      // Update counter and current index
+      currentImageIndex = index;
+      imageCounter.textContent = `${index + 1} / ${imageUrls.length}`;
+    }, 200);
+  }
+
+  // Overriding updateAuctionDisplay to use our new image gallery
   function updateAuctionDisplay(auction) {
     document.title = `${auction.title} - Auction Details`;
-    auctionTitleHeader.textContent = auction.title;
-    auctionDetailsTitle.textContent = auction.title;
-    auctionDetailsDescription.textContent = auction.description;
 
-    auctionImageGallery.innerHTML = auction.imageUrls && auction.imageUrls.length > 0
-            ? auction.imageUrls.map(url => `<img src="${url}" alt="${auction.title} Image">`).join('')
-            : '<p class="text-gray-400">No images available for this auction.</p>';
+    // Add null checks before setting properties
+    if (auctionTitleHeader) {
+      auctionTitleHeader.textContent = auction.title;
+    }
 
-    auctionDetailsStartPrice.textContent = `$${auction.startPrice.toFixed(2)}`;
-    auctionDetailsCurrentBid.textContent = `$${auction.currentBid.toFixed(2)}`;
-    auctionDetailsWinningBidder.textContent = auction.winningBidder || 'None';
-    auctionDetailsMinIncrement.textContent = `$${auction.minIncrement.toFixed(2)}`;
-    auctionDetailsStartTime.textContent = new Date(auction.startTime).toLocaleString();
-    auctionDetailsEndTime.textContent = new Date(auction.endTime).toLocaleString();
+    if (auctionDetailsTitle) {
+      auctionDetailsTitle.textContent = auction.title;
+    }
+
+    if (auctionDetailsDescription) {
+      auctionDetailsDescription.textContent = auction.description;
+    }
+
+    // Setup enhanced image gallery
+    if (auction.imageUrls && auction.imageUrls.length > 0) {
+      setupImageGallery(auction.imageUrls);
+    } else {
+      setupImageGallery([]); // Will show the no-images placeholder
+    }
+
+    if (auctionDetailsStartPrice) {
+      auctionDetailsStartPrice.textContent = `$${auction.startPrice.toFixed(2)}`;
+    }
+
+    if (auctionDetailsCurrentBid) {
+      auctionDetailsCurrentBid.textContent = `$${auction.currentBid.toFixed(2)}`;
+    }
+
+    if (auctionDetailsWinningBidder) {
+      auctionDetailsWinningBidder.textContent = auction.winningBidder || 'None';
+    }
+
+    if (auctionDetailsMinIncrement) {
+      auctionDetailsMinIncrement.textContent = `$${auction.minIncrement.toFixed(2)}`;
+    }
+
+    if (auctionDetailsStartTime) {
+      auctionDetailsStartTime.textContent = new Date(auction.startTime).toLocaleString();
+    }
+
+    if (auctionDetailsEndTime) {
+      auctionDetailsEndTime.textContent = new Date(auction.endTime).toLocaleString();
+    }
+
+    // Set minimum bid amount
+    if (minBidAmount) {
+      const minBidValue = (auction.currentBid + auction.minIncrement).toFixed(2);
+      minBidAmount.textContent = minBidValue;
+    }
 
     // Fix category display by using categoryId
-    if (auction.categoryId) {
+    if (auction.categoryId && auctionDetailsCategory) {
       // Set href to navigate to index.jsp filtered by this category
       auctionDetailsCategory.href = `index.jsp?categoryId=${auction.categoryId}`;
 
       // Fetch the category name if we have the ID
       fetchCategoryName(auction.categoryId).then(categoryName => {
-        auctionDetailsCategory.textContent = categoryName;
+        if (categoryNameSpan) {
+          categoryNameSpan.textContent = categoryName;
+        }
       }).catch(error => {
         console.error("Error fetching category name:", error);
-        auctionDetailsCategory.textContent = "Uncategorized";
+        if (categoryNameSpan) {
+          categoryNameSpan.textContent = "Uncategorized";
+        }
       });
-    } else {
-      auctionDetailsCategory.textContent = 'Uncategorized';
-      auctionDetailsCategory.href = 'index.jsp';
+    } else if (categoryNameSpan) {
+      categoryNameSpan.textContent = 'Uncategorized';
+      if (auctionDetailsCategory) {
+        auctionDetailsCategory.href = 'index.jsp';
+      }
     }
 
-    const status = getAuctionStatus(auction);
-    auctionDetailsStatus.textContent = status.text;
-    auctionDetailsStatus.className = `auction-status ${status.class}`; // Apply class for styling
+    if (auctionDetailsStatus) {
+      const status = getAuctionStatus(auction);
+      auctionDetailsStatus.innerHTML = `<span class="status-dot ${status.class}"></span> ${status.text}`;
+      auctionDetailsStatus.className = `auction-status ${status.class}`; // Apply class for styling
+    }
 
     // Set min bid for input field
-    bidAmountInput.min = (auction.currentBid + auction.minIncrement).toFixed(2);
+    if (bidAmountInput && minBidAmount) {
+      const minBidValue = (auction.currentBid + auction.minIncrement).toFixed(2);
+      bidAmountInput.min = minBidValue;
+      bidAmountInput.placeholder = `Minimum Bid: $${minBidValue}`;
+    }
+
+    // Update countdown container class for ending soon styles
+    const endTime = new Date(auction.endTime).getTime();
+    const now = new Date().getTime();
+    const timeLeft = endTime - now;
+
+    const countdownContainer = document.getElementById('countdown-container');
+    if (countdownContainer) {
+      if (timeLeft < 1000 * 60 * 60) { // Less than 1 hour
+        countdownContainer.classList.add('ending-soon');
+      } else {
+        countdownContainer.classList.remove('ending-soon');
+      }
+    }
   }
 
   // New helper function to fetch category name by ID
@@ -417,9 +1389,26 @@
   // Called by WebSocket on real-time update
   function updateAuctionDetails(data) {
     // Update fields that can change
-    auctionDetailsCurrentBid.textContent = `$${data.currentBid.toFixed(2)}`;
-    auctionDetailsWinningBidder.textContent = data.winningBidder || 'None';
-    bidAmountInput.min = (data.currentBid + (currentAuctionDetails ? currentAuctionDetails.minIncrement : 0)).toFixed(2);
+    if (auctionDetailsCurrentBid) {
+      auctionDetailsCurrentBid.textContent = `$${data.currentBid.toFixed(2)}`;
+    }
+
+    if (auctionDetailsWinningBidder) {
+      auctionDetailsWinningBidder.textContent = data.winningBidder || 'None';
+    }
+
+    // Update minimum bid calculation
+    const newMinBid = (data.currentBid + (currentAuctionDetails ? currentAuctionDetails.minIncrement : 0)).toFixed(2);
+
+    if (bidAmountInput) {
+      bidAmountInput.min = newMinBid;
+      bidAmountInput.placeholder = `Minimum Bid: $${newMinBid}`;
+    }
+
+    if (minBidAmount) {
+      minBidAmount.textContent = newMinBid;
+    }
+
     currentAuctionDetails.currentBid = data.currentBid; // Update stored data
     currentAuctionDetails.winningBidder = data.winningBidder; // Update stored data
   }
@@ -431,16 +1420,7 @@
 
     // Update the UI
     updateBidHistoryDisplay();
-
-    // Highlight the new bid
-    const firstItem = document.querySelector('.bid-history-item');
-    if (firstItem) {
-      firstItem.classList.add('new-bid');
-      // Remove highlight after animation completes
-      setTimeout(() => {
-        firstItem.classList.remove('new-bid');
-      }, 2000);
-    }
+    updateBidCount();
   }
 
   // Function to update the bid history display
@@ -461,15 +1441,39 @@
       const bidTime = new Date(bid.bidTime);
       const bidItem = document.createElement('div');
       bidItem.className = 'bid-history-item p-3';
+
+      // Format the bid time - show only time if today, otherwise show date and time
+      const today = new Date();
+      const isToday = bidTime.getDate() === today.getDate() &&
+                      bidTime.getMonth() === today.getMonth() &&
+                      bidTime.getFullYear() === today.getFullYear();
+
+      const timeFormat = { hour: '2-digit', minute: '2-digit' };
+      const dateTimeFormat = { ...timeFormat, month: 'short', day: 'numeric' };
+      const formattedTime = bidTime.toLocaleString(undefined, isToday ? timeFormat : dateTimeFormat);
+
       bidItem.innerHTML = `
-        <div class="flex justify-between">
-          <div class="font-medium">${bid.bidderName}</div>
-          <div class="text-green-600 font-bold">$${bid.bidAmount.toFixed(2)}</div>
+        <div class="flex justify-between items-start">
+          <div class="flex flex-col">
+            <span class="font-medium text-white">${bid.bidderName}</span>
+            <span class="text-xs text-gray-500">${formattedTime}</span>
+          </div>
+          <span class="text-green-600 font-bold">$${bid.bidAmount.toFixed(2)}</span>
         </div>
-        <div class="text-gray-500 text-sm">${bidTime.toLocaleString()}</div>
       `;
+
       bidHistoryList.appendChild(bidItem);
     });
+
+    // Highlight the newest bid if it exists
+    const firstItem = bidHistoryList.querySelector('.bid-history-item:first-child');
+    if (firstItem) {
+      firstItem.classList.add('new-bid');
+      // Remove highlight after animation completes
+      setTimeout(() => {
+        firstItem.classList.remove('new-bid');
+      }, 2000);
+    }
   }
 
   function updateBidFormVisibility() {
@@ -493,7 +1497,6 @@
       bidForm.classList.remove('hidden');
       bidAmountInput.value = ''; // Clear any previous value
       bidAmountInput.min = (currentAuctionDetails.currentBid + currentAuctionDetails.minIncrement).toFixed(2);
-      bidAmountInput.placeholder = `Min bid: $${bidAmountInput.min}`;
     }
   }
 
@@ -532,20 +1535,28 @@
       if (response.ok) {
         const result = await response.text();
         bidAmountInput.value = ''; // Clear input field after successful bid
-        logMessage(`Bid placed successfully: ${result}`, 'text-green-600');
+        logMessage(`Bid placed successfully: ${result}`, 'bg-green-50 text-green-700');
       } else {
-        logMessage(`Bid failed: ${response.statusText}`, 'text-red-500');
+        logMessage(`Bid failed: ${response.statusText}`, 'bg-red-50 text-red-700');
         bidMessage.textContent = `Error placing bid: ${response.statusText}`;
       }
     } catch (error) {
-      logMessage(`Bid error: ${error.message}`, 'text-red-700');
+      logMessage(`Bid error: ${error.message}`, 'bg-red-50 text-red-700');
       bidMessage.textContent = `Error placing bid: ${error.message}`;
     }
   }
 
   // --- Initialization ---
   document.addEventListener('DOMContentLoaded', () => {
-    logoutBtn.addEventListener('click', handleLogout);
+    // Reference the header logout button instead of the old one
+    // const logoutBtn = document.getElementById('logout-btn'); - removed
+
+    // Update to use the header logout button that exists in the document
+    const headerLogoutButton = document.getElementById('logout-button');
+    if (headerLogoutButton) {
+      headerLogoutButton.addEventListener('click', handleLogout);
+    }
+
     bidForm.addEventListener('submit', handleBidSubmission);
 
     auctionId = getUrlParameter('id'); // Get auction ID from URL
@@ -558,12 +1569,67 @@
     updateAuthUI(); // Update login/logout links
     fetchAuctionDetails(); // Load details for this specific auction
     connectWebSocket(); // Connect WebSocket for real-time updates for this auction
+
+    // Initialize log modal
+    floatingLogButton.addEventListener('click', toggleLogModal);
+    closeLogModal.addEventListener('click', toggleLogModal);
+
+    // Copy existing log content to modal on load
+    const existingLogContent = auctionLog.innerHTML;
+    modalAuctionLog.innerHTML = existingLogContent;
+
+    // Update log badge when there are new entries
+    updateLogBadge();
   });
 
   // Clean up countdown interval when navigating away
   window.addEventListener('beforeunload', () => {
     if (countdownInterval) {
       clearInterval(countdownInterval);
+    }
+  });
+
+  // Mobile menu toggle
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  mobileMenuButton.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+
+  // Update header login/logout state based on auth
+  function updateHeaderAuthState() {
+    const token = getAuthToken();
+    const username = getCurrentUsername();
+    const loginButton = document.getElementById('login-button');
+    const mobileLoginButton = document.getElementById('mobile-login-button');
+    const userProfile = document.getElementById('user-profile');
+    const usernameDisplay = document.getElementById('username-display');
+    const createAuctionLink = document.getElementById('create-auction-link-nav');
+
+    if (token && username) {
+      loginButton.classList.add('hidden');
+      mobileLoginButton.classList.add('hidden');
+      userProfile.classList.remove('hidden');
+      usernameDisplay.textContent = username;
+      createAuctionLink.classList.remove('hidden');
+    } else {
+      loginButton.classList.remove('hidden');
+      mobileLoginButton.classList.remove('hidden');
+      userProfile.classList.add('hidden');
+      createAuctionLink.classList.add('hidden');
+    }
+  }
+
+  // Add this to the initialization code
+  document.addEventListener('DOMContentLoaded', () => {
+    // Existing code...
+    updateHeaderAuthState(); // Add this line to initialize the header
+
+    // Add logout functionality to header logout button
+    const headerLogoutButton = document.getElementById('logout-button');
+    if (headerLogoutButton) {
+      headerLogoutButton.addEventListener('click', handleLogout);
     }
   });
 </script>

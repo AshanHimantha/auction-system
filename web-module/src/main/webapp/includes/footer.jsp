@@ -55,7 +55,7 @@
         </div>
 
         <div class="border-t border-border mt-8 pt-8 text-center text-muted-foreground text-sm">
-            <p>© 2025 AuctionHub. All rights reserved.</p>
+            <p>© 2025 AuctionHub. All rights reserved. Developed By <a href="ashanhimantha.com" >Ashan Himantha</a></p>
         </div>
     </div>
 </footer>

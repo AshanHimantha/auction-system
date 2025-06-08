@@ -47,22 +47,36 @@ public class AuctionInMemoryStorageSingleton {
 
         // --- Populate Auctions with Categories ---
         // Ensure category IDs are correct for initial auctions
-        Auction a1 = new Auction("Vintage Watch", "A classic timepiece from the 1950s.", new String[]{"https://via.placeholder.com/150/0000FF/FFFFFF?text=Watch1", "https://via.placeholder.com/150/0000AA/FFFFFF?text=Watch2"}, 100.00, 5.00, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusHours(1), catCollectibles.getId());
+        Auction a1 = new Auction("Vintage Watch", "A classic timepiece from the 1950s.",
+                new String[]{"https://vintagewatchspecialist.com/cdn/shop/files/record-wwii-british-military-issued-dirty-dozen-wristwatch-1944-dirty-dirty-dozen-dozen-collection-watch-dirty-dozen-watch-watches-vintage-watch-800_2400x.jpg?v=1724341237",
+                        "https://vintagewatchspecialist.com/cdn/shop/files/record-wwii-british-military-issued-dirty-dozen-wristwatch-1944-dirty-dirty-dozen-dozen-collection-watch-dirty-dozen-watch-watches-vintage-watch-496_2400x.jpg?v=1724341251",
+                "https://vintagewatchspecialist.com/cdn/shop/files/record-wwii-british-military-issued-dirty-dozen-wristwatch-1944-dirty-dirty-dozen-dozen-collection-watch-dirty-dozen-watch-watches-vintage-watch-738_2400x.jpg?v=1724341258"
+                }, 100.00, 5.00, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusHours(1), catCollectibles.getId());
         a1.setWinningBidder("system_user");
         auctions.put(a1.getId(), a1);
         bidHistories.put(a1.getId(), new CopyOnWriteArrayList<>()); // Initialize with CopyOnWriteArrayList
 
-        Auction a2 = new Auction("Rare Comic Book", "First edition of a highly sought-after superhero comic.", new String[]{"https://via.placeholder.com/150/FF0000/000000?text=Comic1"}, 50.00, 2.00, LocalDateTime.now().minusHours(12), LocalDateTime.now().minusHours(1), catCollectibles.getId());
+        Auction a2 = new Auction("Rare Comic Book", "First edition of a highly sought-after superhero comic.",
+                new String[]{"https://th.bing.com/th/id/OIP.eCb11UP2KrhO2AxSFTYP-wAAAA?rs=1&pid=ImgDetMain",
+                "https://www.comicbookdaily.com/wp-content/uploads/2020/11/tec-27-480x734.jpg",
+                        "https://comicvine.gamespot.com/a/uploads/scale_small/0/9116/1206901-detectivecomics27.jpg"}, 50.00, 2.00, LocalDateTime.now().minusHours(12), LocalDateTime.now().minusHours(1), catCollectibles.getId());
         a2.setStatus(AuctionStatus.CLOSED);
         a2.setWinningBidder("UserEnded");
         auctions.put(a2.getId(), a2);
         bidHistories.put(a2.getId(), new CopyOnWriteArrayList<>(List.of(new AuctionBidHistory(a2.getId(), "InitialBidder", 50.00), new AuctionBidHistory(a2.getId(), "UserEnded", 52.00)))); // Example history with CopyOnWriteArrayList
 
-        Auction a3 = new Auction("Old Painting", "Abstract art by a renowned local artist.", new String[]{"https://via.placeholder.com/150/00FF00/000000?text=Painting1", "https://via.placeholder.com/150/00AA00/000000?text=Painting2", "https://via.placeholder.com/150/005500/000000?text=Painting3"}, 200.00, 10.00, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(7), catArt.getId());
+        Auction a3 = new Auction("Old Painting", "Abstract art by a renowned local artist.", new String[]{
+                "https://1.bp.blogspot.com/-sm737j8m4x4/UUEwnz2tcYI/AAAAAAAABPc/1m2sz7LJBt0/s1600/4830_1.jpg",
+                "https://a.1stdibscdn.com/alfred-banner-paintings-the-ramblers-english-landscape-with-figures-early-20c-victorian-style-for-sale-picture-2/a_5073/a_109675721664724929793/IMG_8572_master.jpg",
+                "https://th.bing.com/th/id/OIP.ZOSEnWXG0i8ZL6G8s6UkrgHaIX?w=1588&h=1795&rs=1&pid=ImgDetMain"}, 200.00, 10.00, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(7), catArt.getId());
         auctions.put(a3.getId(), a3);
         bidHistories.put(a3.getId(), new CopyOnWriteArrayList<>());
 
-        Auction a4 = new Auction("Rare Stamp Collection", "Complete set of vintage stamps.", new String[]{"https://via.placeholder.com/150/FFFF00/000000?text=Stamp1"}, 150.00, 5.00, LocalDateTime.now().minusDays(3), LocalDateTime.now().plusDays(10), catCollectibles.getId());
+        Auction a4 = new Auction("Rare Stamp Collection", "Complete set of vintage stamps.", new String[]{
+                "https://th.bing.com/th/id/OIP.-G7DziTLRgnFV77bNXZEZgHaE8?rs=1&pid=ImgDetMain",
+                "https://th.bing.com/th/id/OIP.1uwSnegn693jmiS7Ty1jRAHaHa?w=626&h=626&rs=1&pid=ImgDetMain",
+                "https://th.bing.com/th/id/OIP._vv2koW5QUgAZxNeEUyXfAHaKe?w=724&h=1024&rs=1&pid=ImgDetMain"
+        }, 150.00, 5.00, LocalDateTime.now().minusDays(3), LocalDateTime.now().plusDays(10), catCollectibles.getId());
         auctions.put(a4.getId(), a4);
         bidHistories.put(a4.getId(), new CopyOnWriteArrayList<>());
 
