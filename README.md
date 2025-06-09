@@ -50,6 +50,7 @@ auction-system/
 ├── ear-module/ (EAR: Bundles EJB JAR and WAR for deployment)
 │ └── pom.xml
 └── README.md
+
 ## Getting Started
 
 Follow these instructions to set up and run the project locally.
@@ -77,12 +78,7 @@ First, you need to set up the JMS resources in your Payara domain.
 2.  **Create JMS resources (Queue, Topic, Connection Factory):**
     You can use the provided `.bat` script for Windows, or run the `asadmin` commands manually.
 
-    **Option A: Using the provided `create_jms_resources.bat` (Windows only)**
-    *   Create a file `create_jms_resources.bat` (see below) in the root of your Payara installation (e.g., `C:\payara6`).
-    *   Open a Command Prompt (as Administrator might be needed for file permissions) and navigate to `C:\payara6`.
-    *   Run: `create_jms_resources.bat`
-
-    **Option B: Manual `asadmin` commands**
+    ** Manual `asadmin` commands**
     *   Navigate to your Payara's `bin` directory (`C:\payara6\bin`).
     *   Run the following commands:
         ```bash
